@@ -18,25 +18,23 @@ final class DocumentTests: XCTestCase {
     func testLosslessConversion() {
         // given
         let text = "# __Hello__ *world*\n"
-        let expected = "# **Hello** *world*\n"
 
         // when
         let result = Document(text).description
 
         // then
-        XCTAssertEqual(result, expected)
+        XCTAssertEqual("# **Hello** *world*\n", result)
     }
 
     func testEmptyDocument() {
         // given
         let content = ""
-        let expected: [Block] = []
 
         // when
         let result = Document(content).blocks
 
         // then
-        XCTAssertEqual(result, expected)
+        XCTAssertEqual([], result)
     }
 
     func testBlockQuote() {
@@ -45,20 +43,20 @@ final class DocumentTests: XCTestCase {
           >Hello
           >>World
         """
-        let expected: [Block] = [
-            .blockQuote([
-                .paragraph([.text("Hello")]),
-                .blockQuote([
-                    .paragraph([.text("World")]),
-                ]),
-            ]),
-        ]
 
         // when
         let result = Document(text).blocks
 
         // then
-        XCTAssertEqual(result, expected)
+        XCTAssertEqual(
+            BlockQuote {
+                Paragraph("Hello")
+                BlockQuote {
+                    Paragraph("World")
+                }
+            }.asBlocks(),
+            result
+        )
     }
 
     func testList() {
@@ -69,41 +67,26 @@ final class DocumentTests: XCTestCase {
               - nested 1
               - nested 2
         """
-        let expected: [Block] = [
-            .list(
-                List(
-                    style: .ordered(start: 1),
-                    items: [
-                        Item(
-                            blocks: [.paragraph([.text("one")])]
-                        ),
-                        Item(
-                            blocks: [
-                                .paragraph([.text("two")]),
-                                .list(
-                                    List(
-                                        items: [
-                                            Item(
-                                                blocks: [.paragraph([.text("nested 1")])]
-                                            ),
-                                            Item(
-                                                blocks: [.paragraph([.text("nested 2")])]
-                                            ),
-                                        ]
-                                    )
-                                ),
-                            ]
-                        ),
-                    ]
-                )
-            ),
-        ]
 
         // when
         let result = Document(text).blocks
 
         // then
-        XCTAssertEqual(result, expected)
+        XCTAssertEqual(
+            List(start: 1) {
+                Item {
+                    "one"
+                }
+                Item {
+                    "two"
+                    List {
+                        "nested 1"
+                        "nested 2"
+                    }
+                }
+            }.asBlocks(),
+            result
+        )
     }
 
     func testLooseList() {
@@ -115,45 +98,29 @@ final class DocumentTests: XCTestCase {
               - nested 1
               - nested 2
         """
-        let expected: [Block] = [
-            .list(
-                List(
-                    style: .ordered(start: 9),
-                    spacing: .loose,
-                    items: [
-                        Item(
-                            blocks: [.paragraph([.text("one")])]
-                        ),
-                        Item(
-                            blocks: [
-                                .paragraph([.text("two")]),
-                                .list(
-                                    List(
-                                        items: [
-                                            Item(
-                                                blocks: [.paragraph([.text("nested 1")])]
-                                            ),
-                                            Item(
-                                                blocks: [.paragraph([.text("nested 2")])]
-                                            ),
-                                        ]
-                                    )
-                                ),
-                            ]
-                        ),
-                    ]
-                )
-            ),
-        ]
 
         // when
         let result = Document(text).blocks
 
         // then
-        XCTAssertEqual(result, expected)
+        XCTAssertEqual(
+            List(start: 9, spacing: .loose) {
+                Item {
+                    "one"
+                }
+                Item {
+                    "two"
+                    List {
+                        "nested 1"
+                        "nested 2"
+                    }
+                }
+            }.asBlocks(),
+            result
+        )
     }
 
-    func testCode() {
+    func testCodeBlock() {
         // given
         let text = """
            ```swift
@@ -161,46 +128,51 @@ final class DocumentTests: XCTestCase {
            let b = 42
            ```
         """
-        let expected: [Block] = [
-            .code(
-                "let a = 5\nlet b = 42\n",
-                language: "swift"
-            ),
-        ]
 
         // when
         let result = Document(text).blocks
 
         // then
-        XCTAssertEqual(result, expected)
+        XCTAssertEqual(
+            CodeBlock(language: "swift") {
+                """
+                let a = 5
+                let b = 42
+
+                """
+            }.asBlocks(),
+            result
+        )
     }
 
     func testHTML() {
         // given
         let text = "<p>Hello world!</p>"
-        let expected: [Block] = [
-            .html("<p>Hello world!</p>\n"),
-        ]
 
         // when
         let result = Document(text).blocks
 
         // then
-        XCTAssertEqual(result, expected)
+        XCTAssertEqual(
+            [
+                .html("<p>Hello world!</p>\n"),
+            ],
+            result
+        )
     }
 
     func testParagraph() {
         // given
         let text = "Hello world!"
-        let expected: [Block] = [
-            .paragraph([.text("Hello world!")]),
-        ]
 
         // when
         let result = Document(text).blocks
 
         // then
-        XCTAssertEqual(result, expected)
+        XCTAssertEqual(
+            Paragraph("Hello world!").asBlocks(),
+            result
+        )
     }
 
     func testHeading() {
@@ -209,16 +181,18 @@ final class DocumentTests: XCTestCase {
            # Hello
            ## World
         """
-        let expected: [Block] = [
-            .heading([.text("Hello")], level: 1),
-            .heading([.text("World")], level: 2),
-        ]
 
         // when
         let result = Document(text).blocks
 
         // then
-        XCTAssertEqual(result, expected)
+        XCTAssertEqual(
+            [
+                .heading([.text("Hello")], level: 1),
+                .heading([.text("World")], level: 2),
+            ],
+            result
+        )
     }
 
     func testSoftBreak() {
@@ -227,147 +201,157 @@ final class DocumentTests: XCTestCase {
            Hello
                World
         """
-        let expected: [Block] = [
-            .paragraph([
-                .text("Hello"),
-                .softBreak,
-                .text("World"),
-            ]),
-        ]
 
         // when
         let result = Document(text).blocks
 
         // then
-        XCTAssertEqual(result, expected)
+        XCTAssertEqual(
+            [
+                .paragraph([
+                    .text("Hello"),
+                    .softBreak,
+                    .text("World"),
+                ]),
+            ],
+            result
+        )
     }
 
     func testLineBreak() {
         // given
         let text = "Hello  \n      World"
-        let expected: [Block] = [
-            .paragraph([
-                .text("Hello"),
-                .lineBreak,
-                .text("World"),
-            ]),
-        ]
 
         // when
         let result = Document(text).blocks
 
         // then
-        XCTAssertEqual(result, expected)
+        XCTAssertEqual(
+            [
+                .paragraph([
+                    .text("Hello"),
+                    .lineBreak,
+                    .text("World"),
+                ]),
+            ],
+            result
+        )
     }
 
     func testCodeInline() {
         // given
         let text = "Returns `nil`."
-        let expected: [Block] = [
-            .paragraph([
-                .text("Returns "),
-                .code("nil"),
-                .text("."),
-            ]),
-        ]
 
         // when
         let result = Document(text).blocks
 
         // then
-        XCTAssertEqual(result, expected)
+        XCTAssertEqual(
+            Paragraph {
+                "Returns "
+                Code("nil")
+                "."
+            }.asBlocks(),
+            result
+        )
     }
 
     func testHTMLInline() {
         // given
         let text = "Returns <code>nil</code>."
-        let expected: [Block] = [
-            .paragraph([
-                .text("Returns "),
-                .html("<code>"),
-                .text("nil"),
-                .html("</code>"),
-                .text("."),
-            ]),
-        ]
 
         // when
         let result = Document(text).blocks
 
         // then
-        XCTAssertEqual(result, expected)
+        XCTAssertEqual(
+            [
+                .paragraph([
+                    .text("Returns "),
+                    .html("<code>"),
+                    .text("nil"),
+                    .html("</code>"),
+                    .text("."),
+                ]),
+            ],
+            result
+        )
     }
 
     func testEmphasis() {
         // given
         let text = "Hello _world_."
-        let expected: [Block] = [
-            .paragraph([
-                .text("Hello "),
-                .emphasis([.text("world")]),
-                .text("."),
-            ]),
-        ]
 
         // when
         let result = Document(text).blocks
 
         // then
-        XCTAssertEqual(result, expected)
+        XCTAssertEqual(
+            Paragraph {
+                "Hello "
+                Emphasis("world")
+                "."
+            }.asBlocks(),
+            result
+        )
     }
 
     func testStrong() {
         // given
         let text = "Hello __world__."
-        let expected: [Block] = [
-            .paragraph([
-                .text("Hello "),
-                .strong([.text("world")]),
-                .text("."),
-            ]),
-        ]
 
         // when
         let result = Document(text).blocks
 
         // then
-        XCTAssertEqual(result, expected)
+        XCTAssertEqual(
+            Paragraph {
+                "Hello "
+                Strong("world")
+                "."
+            }.asBlocks(),
+            result
+        )
     }
 
     func testLink() {
         // given
         let text = "Hello [world](https://example.com)."
-        let expected: [Block] = [
-            .paragraph([
-                .text("Hello "),
-                .link([.text("world")], url: URL("https://example.com")),
-                .text("."),
-            ]),
-        ]
 
         // when
         let result = Document(text).blocks
 
         // then
-        XCTAssertEqual(result, expected)
+        XCTAssertEqual(
+            Paragraph {
+                "Hello "
+                Link(url: URL("https://example.com")) {
+                    "world"
+                }
+                "."
+            }.asBlocks(),
+            result
+        )
     }
 
     func testImage() {
         // given
         let text = "Hello ![world](https://example.com/world.jpg)."
-        let expected: [Block] = [
-            .paragraph([
-                .text("Hello "),
-                .image([.text("world")], url: URL("https://example.com/world.jpg")),
-                .text("."),
-            ]),
-        ]
 
         // when
         let result = Document(text).blocks
 
         // then
-        XCTAssertEqual(result, expected)
+        XCTAssertEqual(
+            Paragraph {
+                "Hello "
+                Image(url: URL("https://example.com/world.jpg")) {
+                    "world"
+                }
+                "."
+            }.asBlocks(),
+            result
+        )
     }
 
     func testImageURLs() {
@@ -381,15 +365,17 @@ final class DocumentTests: XCTestCase {
         Emphasis *![](image5.jpg)* and strong **![](image6.jpg)**\
         Repeated ![](image3.jpg)
         """
-        let expected: Set<URL> = [
-            URL("image1.jpg"), URL("image2.jpg"), URL("image3.jpg"),
-            URL("image4.jpg"), URL("image5.jpg"), URL("image6.jpg"),
-        ]
 
         // when
         let result = Document(text).imageURLs
 
         // then
-        XCTAssertEqual(result, expected)
+        XCTAssertEqual(
+            [
+                URL("image1.jpg"), URL("image2.jpg"), URL("image3.jpg"),
+                URL("image4.jpg"), URL("image5.jpg"), URL("image6.jpg"),
+            ],
+            result
+        )
     }
 }
