@@ -30,7 +30,7 @@ final class DocumentTests: XCTestCase {
     func testEmptyDocument() {
         // given
         let content = ""
-        let expected: [Document.Block] = []
+        let expected: [Block] = []
 
         // when
         let result = Document(content).blocks
@@ -45,7 +45,7 @@ final class DocumentTests: XCTestCase {
           >Hello
           >>World
         """
-        let expected: [Document.Block] = [
+        let expected: [Block] = [
             .blockQuote([
                 .paragraph([.text("Hello")]),
                 .blockQuote([
@@ -69,23 +69,23 @@ final class DocumentTests: XCTestCase {
               - nested 1
               - nested 2
         """
-        let expected: [Document.Block] = [
+        let expected: [Block] = [
             .list(
-                Document.List(
+                List(
                     items: [
-                        Document.List.Item(
+                        List.Item(
                             blocks: [.paragraph([.text("one")])]
                         ),
-                        Document.List.Item(
+                        List.Item(
                             blocks: [
                                 .paragraph([.text("two")]),
                                 .list(
-                                    Document.List(
+                                    List(
                                         items: [
-                                            Document.List.Item(
+                                            List.Item(
                                                 blocks: [.paragraph([.text("nested 1")])]
                                             ),
-                                            Document.List.Item(
+                                            List.Item(
                                                 blocks: [.paragraph([.text("nested 2")])]
                                             ),
                                         ],
@@ -120,23 +120,23 @@ final class DocumentTests: XCTestCase {
               - nested 1
               - nested 2
         """
-        let expected: [Document.Block] = [
+        let expected: [Block] = [
             .list(
-                Document.List(
+                List(
                     items: [
-                        Document.List.Item(
+                        List.Item(
                             blocks: [.paragraph([.text("one")])]
                         ),
-                        Document.List.Item(
+                        List.Item(
                             blocks: [
                                 .paragraph([.text("two")]),
                                 .list(
-                                    Document.List(
+                                    List(
                                         items: [
-                                            Document.List.Item(
+                                            List.Item(
                                                 blocks: [.paragraph([.text("nested 1")])]
                                             ),
-                                            Document.List.Item(
+                                            List.Item(
                                                 blocks: [.paragraph([.text("nested 2")])]
                                             ),
                                         ],
@@ -170,7 +170,7 @@ final class DocumentTests: XCTestCase {
            let b = 42
            ```
         """
-        let expected: [Document.Block] = [
+        let expected: [Block] = [
             .code(
                 "let a = 5\nlet b = 42\n",
                 language: "swift"
@@ -187,7 +187,7 @@ final class DocumentTests: XCTestCase {
     func testHTML() {
         // given
         let text = "<p>Hello world!</p>"
-        let expected: [Document.Block] = [
+        let expected: [Block] = [
             .html("<p>Hello world!</p>\n"),
         ]
 
@@ -201,7 +201,7 @@ final class DocumentTests: XCTestCase {
     func testParagraph() {
         // given
         let text = "Hello world!"
-        let expected: [Document.Block] = [
+        let expected: [Block] = [
             .paragraph([.text("Hello world!")]),
         ]
 
@@ -218,7 +218,7 @@ final class DocumentTests: XCTestCase {
            # Hello
            ## World
         """
-        let expected: [Document.Block] = [
+        let expected: [Block] = [
             .heading([.text("Hello")], level: 1),
             .heading([.text("World")], level: 2),
         ]
@@ -236,7 +236,7 @@ final class DocumentTests: XCTestCase {
            Hello
                World
         """
-        let expected: [Document.Block] = [
+        let expected: [Block] = [
             .paragraph([
                 .text("Hello"),
                 .softBreak,
@@ -254,7 +254,7 @@ final class DocumentTests: XCTestCase {
     func testLineBreak() {
         // given
         let text = "Hello  \n      World"
-        let expected: [Document.Block] = [
+        let expected: [Block] = [
             .paragraph([
                 .text("Hello"),
                 .lineBreak,
@@ -272,7 +272,7 @@ final class DocumentTests: XCTestCase {
     func testCodeInline() {
         // given
         let text = "Returns `nil`."
-        let expected: [Document.Block] = [
+        let expected: [Block] = [
             .paragraph([
                 .text("Returns "),
                 .code("nil"),
@@ -290,7 +290,7 @@ final class DocumentTests: XCTestCase {
     func testHTMLInline() {
         // given
         let text = "Returns <code>nil</code>."
-        let expected: [Document.Block] = [
+        let expected: [Block] = [
             .paragraph([
                 .text("Returns "),
                 .html("<code>"),
@@ -310,7 +310,7 @@ final class DocumentTests: XCTestCase {
     func testEmphasis() {
         // given
         let text = "Hello _world_."
-        let expected: [Document.Block] = [
+        let expected: [Block] = [
             .paragraph([
                 .text("Hello "),
                 .emphasis([.text("world")]),
@@ -328,7 +328,7 @@ final class DocumentTests: XCTestCase {
     func testStrong() {
         // given
         let text = "Hello __world__."
-        let expected: [Document.Block] = [
+        let expected: [Block] = [
             .paragraph([
                 .text("Hello "),
                 .strong([.text("world")]),
@@ -346,10 +346,10 @@ final class DocumentTests: XCTestCase {
     func testLink() {
         // given
         let text = "Hello [world](https://example.com)."
-        let expected: [Document.Block] = [
+        let expected: [Block] = [
             .paragraph([
                 .text("Hello "),
-                .link([.text("world")], url: "https://example.com"),
+                .link([.text("world")], url: URL("https://example.com")),
                 .text("."),
             ]),
         ]
@@ -364,10 +364,10 @@ final class DocumentTests: XCTestCase {
     func testImage() {
         // given
         let text = "Hello ![world](https://example.com/world.jpg)."
-        let expected: [Document.Block] = [
+        let expected: [Block] = [
             .paragraph([
                 .text("Hello "),
-                .image([.text("world")], url: "https://example.com/world.jpg"),
+                .image([.text("world")], url: URL("https://example.com/world.jpg")),
                 .text("."),
             ]),
         ]
@@ -390,9 +390,9 @@ final class DocumentTests: XCTestCase {
         Emphasis *![](image5.jpg)* and strong **![](image6.jpg)**\
         Repeated ![](image3.jpg)
         """
-        let expected: Set<String> = [
-            "image1.jpg", "image2.jpg", "image3.jpg",
-            "image4.jpg", "image5.jpg", "image6.jpg",
+        let expected: Set<URL> = [
+            URL("image1.jpg"), URL("image2.jpg"), URL("image3.jpg"),
+            URL("image4.jpg"), URL("image5.jpg"), URL("image6.jpg"),
         ]
 
         // when
