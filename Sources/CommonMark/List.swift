@@ -5,57 +5,62 @@ import Foundation
 public struct List: Equatable {
     /// List style.
     public enum Style: Equatable {
-        case bullet, ordered
+        case bullet
+        case ordered(start: Int)
 
-        init(_ listType: cmark_list_type) {
+        init(_ listType: cmark_list_type, _ listStart: Int) {
             switch listType {
             case CMARK_ORDERED_LIST:
-                self = .ordered
+                self = .ordered(start: listStart)
             default:
                 self = .bullet
             }
         }
     }
 
-    /// A single list item.
-    public struct Item: Equatable {
-        public let blocks: [Block]
-
-        public init(blocks: [Block]) {
-            self.blocks = blocks
-        }
-
-        init?(node: Node) {
-            guard case CMARK_NODE_ITEM = node.type else { return nil }
-            blocks = node.children.map(Block.init)
-        }
+    /// List spacing.
+    public enum Spacing: Equatable {
+        case loose, tight
     }
-
-    /// The items in this list.
-    public let items: [Item]
 
     /// The list style.
     public let style: Style
 
-    /// The start index in an ordered list.
-    public let start: Int
-
     /// Whether or not this list has tight or loose spacing between its items.
-    public let isTight: Bool
+    public let spacing: Spacing
 
-    public init(items: [Item], style: Style, start: Int, isTight: Bool) {
-        self.items = items
+    /// The items in this list.
+    public let items: [Item]
+
+    public init(style: Style = .bullet, spacing: Spacing = .tight, items: [Item]) {
         self.style = style
-        self.start = start
-        self.isTight = isTight
+        self.spacing = spacing
+        self.items = items
     }
 
     init(node: Node) {
         assert(node.type == CMARK_NODE_LIST)
 
-        items = node.children.compactMap(Item.init)
-        style = Style(node.listType)
-        start = node.listStart
-        isTight = node.listTight
+        self.init(
+            style: Style(node.listType, node.listStart),
+            spacing: node.listTight ? .tight : .loose,
+            items: node.children.compactMap(Item.init)
+        )
+    }
+}
+
+public extension List {
+    init(spacing: Spacing = .tight, @ItemBuilder content: () -> [Item]) {
+        self.init(style: .bullet, spacing: spacing, items: content())
+    }
+
+    init(start: Int, spacing: Spacing = .tight, @ItemBuilder content: () -> [Item]) {
+        self.init(style: .ordered(start: start), spacing: spacing, items: content())
+    }
+}
+
+extension List: BlockConvertible {
+    public func asBlocks() -> [Block] {
+        [.list(self)]
     }
 }

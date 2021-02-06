@@ -7,7 +7,7 @@ public struct Paragraph: BlockConvertible {
         inlines = text.asInlines()
     }
 
-    public init(@InlineBuilder _ content: () -> [Inline]) {
+    public init(@InlineBuilder content: () -> [Inline]) {
         inlines = content()
     }
 

@@ -7,7 +7,7 @@ public struct Emphasis: InlineConvertible {
         inlines = [.text(text)]
     }
 
-    public init(@InlineBuilder _ content: () -> [Inline]) {
+    public init(@InlineBuilder content: () -> [Inline]) {
         inlines = content()
     }
 

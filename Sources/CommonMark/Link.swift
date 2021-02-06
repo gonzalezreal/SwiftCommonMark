@@ -11,7 +11,7 @@ public struct Link: InlineConvertible {
         self.title = title
     }
 
-    public init(url: URL, title: String = "", @InlineBuilder _ content: () -> [Inline]) {
+    public init(url: URL, title: String = "", @InlineBuilder content: () -> [Inline]) {
         self.url = url
         self.title = title
         inlines = content()

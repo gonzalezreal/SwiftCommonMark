@@ -5,7 +5,7 @@ public struct Image: InlineConvertible {
     private let title: String
     private let inlines: [Inline]
 
-    public init(url: URL, title: String = "", @InlineBuilder _ content: () -> [Inline]) {
+    public init(url: URL, title: String = "", @InlineBuilder content: () -> [Inline]) {
         self.url = url
         self.title = title
         inlines = content()

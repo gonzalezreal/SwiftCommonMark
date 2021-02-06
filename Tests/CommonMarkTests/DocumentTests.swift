@@ -72,34 +72,29 @@ final class DocumentTests: XCTestCase {
         let expected: [Block] = [
             .list(
                 List(
+                    style: .ordered(start: 1),
                     items: [
-                        List.Item(
+                        Item(
                             blocks: [.paragraph([.text("one")])]
                         ),
-                        List.Item(
+                        Item(
                             blocks: [
                                 .paragraph([.text("two")]),
                                 .list(
                                     List(
                                         items: [
-                                            List.Item(
+                                            Item(
                                                 blocks: [.paragraph([.text("nested 1")])]
                                             ),
-                                            List.Item(
+                                            Item(
                                                 blocks: [.paragraph([.text("nested 2")])]
                                             ),
-                                        ],
-                                        style: .bullet,
-                                        start: 0,
-                                        isTight: true
+                                        ]
                                     )
                                 ),
                             ]
                         ),
-                    ],
-                    style: .ordered,
-                    start: 1,
-                    isTight: true
+                    ]
                 )
             ),
         ]
@@ -123,34 +118,30 @@ final class DocumentTests: XCTestCase {
         let expected: [Block] = [
             .list(
                 List(
+                    style: .ordered(start: 9),
+                    spacing: .loose,
                     items: [
-                        List.Item(
+                        Item(
                             blocks: [.paragraph([.text("one")])]
                         ),
-                        List.Item(
+                        Item(
                             blocks: [
                                 .paragraph([.text("two")]),
                                 .list(
                                     List(
                                         items: [
-                                            List.Item(
+                                            Item(
                                                 blocks: [.paragraph([.text("nested 1")])]
                                             ),
-                                            List.Item(
+                                            Item(
                                                 blocks: [.paragraph([.text("nested 2")])]
                                             ),
-                                        ],
-                                        style: .bullet,
-                                        start: 0,
-                                        isTight: true
+                                        ]
                                     )
                                 ),
                             ]
                         ),
-                    ],
-                    style: .ordered,
-                    start: 9,
-                    isTight: false
+                    ]
                 )
             ),
         ]

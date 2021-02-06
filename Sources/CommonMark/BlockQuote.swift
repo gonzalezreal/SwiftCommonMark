@@ -7,7 +7,7 @@ public struct BlockQuote: BlockConvertible {
         blocks = text.asBlocks()
     }
 
-    public init(@BlockBuilder _ content: () -> [Block]) {
+    public init(@BlockBuilder content: () -> [Block]) {
         blocks = content()
     }
 
