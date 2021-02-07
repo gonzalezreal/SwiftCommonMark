@@ -26,6 +26,14 @@ public struct Document {
     public init(contentsOfFile path: String, encoding: String.Encoding) throws {
         try self.init(String(contentsOfFile: path, encoding: encoding))
     }
+
+    public init(blocks: [Block]) {
+        node = Node(blocks: blocks)
+    }
+
+    public init(@BlockBuilder content: () -> [Block]) {
+        self.init(blocks: content())
+    }
 }
 
 extension Document: Equatable {
@@ -61,14 +69,7 @@ extension Document: Codable {
         let container = try decoder.singleValueContainer()
         let content = try container.decode(String.self)
 
-        guard let node = Node(content) else {
-            throw DecodingError.dataCorruptedError(
-                in: container,
-                debugDescription: "Invalid document: \(content)"
-            )
-        }
-
-        self.node = node
+        self.init(content)
     }
 
     public func encode(to encoder: Encoder) throws {
