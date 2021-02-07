@@ -38,12 +38,12 @@ class Node {
         return String(cString: fenceInfo)
     }
 
-    var url: URL? {
+    var url: String? {
         guard let url = cmark_node_get_url(cmark_node) else { return nil }
-        return URL(string: String(cString: url))
+        return String(cString: url)
     }
 
-    var imageURLs: [URL] {
+    var imageURLs: [String] {
         switch type {
         case CMARK_NODE_DOCUMENT, CMARK_NODE_BLOCK_QUOTE, CMARK_NODE_LIST,
              CMARK_NODE_ITEM, CMARK_NODE_PARAGRAPH, CMARK_NODE_HEADING,

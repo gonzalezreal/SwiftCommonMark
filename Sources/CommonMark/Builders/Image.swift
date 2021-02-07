@@ -18,6 +18,6 @@ public struct Image: InlineConvertible {
     }
 
     public func asInlines() -> [Inline] {
-        [.image(inlines, url: url, title: title)]
+        [.image(inlines, url: url.absoluteString, title: title)]
     }
 }

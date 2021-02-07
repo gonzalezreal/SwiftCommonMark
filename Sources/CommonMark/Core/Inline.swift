@@ -25,10 +25,10 @@ public enum Inline: Equatable {
     case strong([Inline])
 
     /// Link.
-    case link([Inline], url: URL, title: String = "")
+    case link([Inline], url: String, title: String = "")
 
     /// Image.
-    case image([Inline], url: URL, title: String = "")
+    case image([Inline], url: String, title: String = "")
 
     init(node: Node) {
         switch node.type {

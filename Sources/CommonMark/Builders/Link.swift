@@ -18,6 +18,6 @@ public struct Link: InlineConvertible {
     }
 
     public func asInlines() -> [Inline] {
-        [.link(inlines, url: url, title: title)]
+        [.link(inlines, url: url.absoluteString, title: title)]
     }
 }

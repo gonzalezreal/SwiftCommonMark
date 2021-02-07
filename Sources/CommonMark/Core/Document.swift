@@ -9,7 +9,7 @@ public struct Document {
     }
 
     /// A set with all the image locations contained in this document.
-    public var imageURLs: Set<URL> {
+    public var imageURLs: Set<String> {
         Set(node.imageURLs)
     }
 

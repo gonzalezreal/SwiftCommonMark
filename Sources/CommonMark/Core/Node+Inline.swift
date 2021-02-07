@@ -31,7 +31,7 @@ extension Node {
             }
         case let .link(children, url, title):
             cmark_node = cmark_node_new(CMARK_NODE_LINK)
-            cmark_node_set_url(cmark_node, url.absoluteString)
+            cmark_node_set_url(cmark_node, url)
             if !title.isEmpty {
                 cmark_node_set_title(cmark_node, title)
             }
@@ -40,7 +40,7 @@ extension Node {
             }
         case let .image(children, url, title):
             cmark_node = cmark_node_new(CMARK_NODE_IMAGE)
-            cmark_node_set_url(cmark_node, url.absoluteString)
+            cmark_node_set_url(cmark_node, url)
             if !title.isEmpty {
                 cmark_node_set_title(cmark_node, title)
             }
