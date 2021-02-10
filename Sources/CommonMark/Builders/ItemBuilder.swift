@@ -1,12 +1,16 @@
 import Foundation
 
-@_functionBuilder
+@resultBuilder
 public enum ItemBuilder {
     public static func buildBlock(_ values: ItemConvertible...) -> [Item] {
         values.flatMap { $0.asItems() }
     }
 
-    public static func buildIf(_ value: ItemConvertible?) -> ItemConvertible {
+    public static func buildArray(_ components: [ItemConvertible]) -> [Item] {
+        components.flatMap { $0.asItems() }
+    }
+
+    public static func buildOptional(_ value: ItemConvertible?) -> ItemConvertible {
         value ?? []
     }
 

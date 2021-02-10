@@ -1,13 +1,17 @@
 import Foundation
 
-@_functionBuilder
+@resultBuilder
 public enum InlineBuilder {
     public static func buildBlock(_ values: InlineConvertible...) -> [Inline] {
         values.flatMap { $0.asInlines() }
     }
 
-    public static func buildIf(_ value: InlineConvertible?) -> InlineConvertible {
-        value ?? []
+    public static func buildArray(_ components: [InlineConvertible]) -> [Inline] {
+        components.flatMap { $0.asInlines() }
+    }
+
+    public static func buildOptional(_ component: InlineConvertible?) -> InlineConvertible {
+        component ?? []
     }
 
     public static func buildEither(first: InlineConvertible) -> InlineConvertible {

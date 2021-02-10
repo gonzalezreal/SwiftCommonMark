@@ -1,10 +1,3 @@
-//
-//  File.swift
-//
-//
-//  Created by Guille on 6/2/21.
-//
-
 import cmark
 import Foundation
 
