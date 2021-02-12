@@ -49,18 +49,20 @@ public struct List: Equatable {
     }
 }
 
-public extension List {
-    init(spacing: Spacing = .tight, @ItemBuilder content: () -> [Item]) {
-        self.init(style: .bullet, spacing: spacing, items: content())
+#if swift(>=5.4)
+    public extension List {
+        init(spacing: Spacing = .tight, @ItemBuilder content: () -> [Item]) {
+            self.init(style: .bullet, spacing: spacing, items: content())
+        }
+
+        init(start: Int, spacing: Spacing = .tight, @ItemBuilder content: () -> [Item]) {
+            self.init(style: .ordered(start: start), spacing: spacing, items: content())
+        }
     }
 
-    init(start: Int, spacing: Spacing = .tight, @ItemBuilder content: () -> [Item]) {
-        self.init(style: .ordered(start: start), spacing: spacing, items: content())
+    extension List: BlockConvertible {
+        public func asBlocks() -> [Block] {
+            [.list(self)]
+        }
     }
-}
-
-extension List: BlockConvertible {
-    public func asBlocks() -> [Block] {
-        [.list(self)]
-    }
-}
+#endif

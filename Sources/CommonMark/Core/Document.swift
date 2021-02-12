@@ -31,9 +31,11 @@ public struct Document {
         node = Node(blocks: blocks)
     }
 
-    public init(@BlockBuilder content: () -> [Block]) {
-        self.init(blocks: content())
-    }
+    #if swift(>=5.4)
+        public init(@BlockBuilder content: () -> [Block]) {
+            self.init(blocks: content())
+        }
+    #endif
 }
 
 extension Document: Equatable {

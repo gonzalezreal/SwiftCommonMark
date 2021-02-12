@@ -9,13 +9,15 @@ public struct Item: Equatable {
         self.blocks = blocks
     }
 
-    public init(_ text: String) {
-        self.init(blocks: text.asBlocks())
-    }
+    #if swift(>=5.4)
+        public init(_ text: String) {
+            self.init(blocks: text.asBlocks())
+        }
 
-    public init(@BlockBuilder content: () -> [Block]) {
-        self.init(blocks: content())
-    }
+        public init(@BlockBuilder content: () -> [Block]) {
+            self.init(blocks: content())
+        }
+    #endif
 
     init?(node: Node) {
         guard case CMARK_NODE_ITEM = node.type else { return nil }
@@ -23,8 +25,10 @@ public struct Item: Equatable {
     }
 }
 
-extension Item: ItemConvertible {
-    public func asItems() -> [Item] {
-        [self]
+#if swift(>=5.4)
+    extension Item: ItemConvertible {
+        public func asItems() -> [Item] {
+            [self]
+        }
     }
-}
+#endif
