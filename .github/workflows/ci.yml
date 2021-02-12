@@ -7,19 +7,11 @@ on:
     branches:
       - '*'
 jobs:
-  tests-swift-5.3:
-    runs-on: macos-11.0
-    steps:
-      - uses: actions/checkout@v2
-      - name: Select Xcode 12.4
-        run: sudo xcode-select -s /Applications/Xcode_12.4.app
-      - name: Run tests
-        run: make test build_watchOS
-  tests-swift-5.4:
+  tests:
     runs-on: macos-11.0
     steps:
       - uses: actions/checkout@v2
       - name: Select Xcode 12.5
         run: sudo xcode-select -s /Applications/Xcode_12.5.app
       - name: Run tests
-        run: make test build_watchOS
+        run: make
