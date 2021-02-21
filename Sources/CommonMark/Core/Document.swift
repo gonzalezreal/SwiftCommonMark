@@ -36,6 +36,11 @@ public struct Document {
             self.init(blocks: content())
         }
     #endif
+
+    /// Returns a new document created by applying the specified transform to this document's text elements.
+    public func applyingTransform(_ transform: (String) -> String) -> Document {
+        Document(blocks: blocks.map { $0.applyingTransform(transform) })
+    }
 }
 
 extension Document: Equatable {

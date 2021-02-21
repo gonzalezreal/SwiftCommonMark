@@ -47,4 +47,23 @@ public enum Block: Equatable {
             fatalError("Unhandled cmark node '\(node.typeString)'")
         }
     }
+
+    /// Returns a new block created by applying the specified transform to this block's text elements.
+    public func applyingTransform(_ transform: (String) -> String) -> Block {
+        switch self {
+        case let .blockQuote(blocks):
+            return .blockQuote(blocks.map { $0.applyingTransform(transform) })
+        case let .list(list):
+            return .list(list.applyingTransform(transform))
+        case let .paragraph(inlines):
+            return .paragraph(inlines.map { $0.applyingTransform(transform) })
+        case let .heading(inlines, level):
+            return .heading(
+                inlines.map { $0.applyingTransform(transform) },
+                level: level
+            )
+        case .code, .html, .thematicBreak:
+            return self
+        }
+    }
 }
