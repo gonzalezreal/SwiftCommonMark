@@ -54,4 +54,30 @@ public enum Inline: Equatable {
             fatalError("Unhandled cmark node '\(node.typeString)'")
         }
     }
+
+    /// Returns a new inline created by applying the specified transform to this inline's text elements.
+    public func applyingTransform(_ transform: (String) -> String) -> Inline {
+        switch self {
+        case let .text(text):
+            return .text(transform(text))
+        case let .emphasis(inlines):
+            return .emphasis(inlines.map { $0.applyingTransform(transform) })
+        case let .strong(inlines):
+            return .strong(inlines.map { $0.applyingTransform(transform) })
+        case let .link(inlines, url, title):
+            return .link(
+                inlines.map { $0.applyingTransform(transform) },
+                url: url,
+                title: title
+            )
+        case let .image(inlines, url, title):
+            return .image(
+                inlines.map { $0.applyingTransform(transform) },
+                url: url,
+                title: title
+            )
+        case .softBreak, .lineBreak, .code, .html:
+            return self
+        }
+    }
 }

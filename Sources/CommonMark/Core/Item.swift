@@ -23,6 +23,11 @@ public struct Item: Equatable {
         guard case CMARK_NODE_ITEM = node.type else { return nil }
         self.init(blocks: node.children.map(Block.init))
     }
+
+    /// Returns a new list item created by applying the specified transform to this item's text elements.
+    public func applyingTransform(_ transform: (String) -> String) -> Item {
+        Item(blocks: blocks.map { $0.applyingTransform(transform) })
+    }
 }
 
 #if swift(>=5.4)

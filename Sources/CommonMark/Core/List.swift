@@ -47,6 +47,15 @@ public struct List: Equatable {
             items: node.children.compactMap(Item.init)
         )
     }
+
+    /// Returns a new list created by applying the specified transform to this list's text elements.
+    public func applyingTransform(_ transform: (String) -> String) -> List {
+        List(
+            style: style,
+            spacing: spacing,
+            items: items.map { $0.applyingTransform(transform) }
+        )
+    }
 }
 
 #if swift(>=5.4)

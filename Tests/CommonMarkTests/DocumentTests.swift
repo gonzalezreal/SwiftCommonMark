@@ -37,6 +37,54 @@ final class DocumentTests: XCTestCase {
         XCTAssertEqual([], result)
     }
 
+    func testApplyTransform() {
+        // given
+        let text = """
+        ## Try CommonMark
+
+        You can try CommonMark here.  This dingus is powered by
+        [commonmark.js](https://github.com/jgm/commonmark.js), the
+        `JavaScript` reference implementation.
+
+        ```swift
+        let a = b
+        ```
+
+        1. item one
+        2. item two
+           - sublist
+           - sublist
+        """
+
+        // when
+        let result = Document(text).applyingTransform { text in
+            text.uppercased()
+        }
+
+        // then
+        XCTAssertEqual(
+            Document(
+                """
+                ## TRY COMMONMARK
+
+                YOU CAN TRY COMMONMARK HERE.  THIS DINGUS IS POWERED BY
+                [COMMONMARK.JS](https://github.com/jgm/commonmark.js), THE
+                `JavaScript` REFERENCE IMPLEMENTATION.
+
+                ``` swift
+                let a = b
+                ```
+
+                1.  ITEM ONE
+                2.  ITEM TWO
+                      - SUBLIST
+                      - SUBLIST
+                """
+            ),
+            result
+        )
+    }
+
     func testBlockQuote() {
         // given
         let text = """
