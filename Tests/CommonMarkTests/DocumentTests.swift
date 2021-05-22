@@ -456,6 +456,7 @@ final class DocumentTests: XCTestCase {
         ---
         Emphasis *![](image5.jpg)* and strong **![](image6.jpg)**\
         Repeated ![](image3.jpg)
+        [![](image7.jpg)](https://example.com)
         """
 
         // when
@@ -466,6 +467,7 @@ final class DocumentTests: XCTestCase {
             [
                 "image1.jpg", "image2.jpg", "image3.jpg",
                 "image4.jpg", "image5.jpg", "image6.jpg",
+                "image7.jpg",
             ],
             result
         )

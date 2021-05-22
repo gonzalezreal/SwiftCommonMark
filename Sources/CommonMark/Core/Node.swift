@@ -47,7 +47,7 @@ class Node {
         switch type {
         case CMARK_NODE_DOCUMENT, CMARK_NODE_BLOCK_QUOTE, CMARK_NODE_LIST,
              CMARK_NODE_ITEM, CMARK_NODE_PARAGRAPH, CMARK_NODE_HEADING,
-             CMARK_NODE_EMPH, CMARK_NODE_STRONG:
+             CMARK_NODE_EMPH, CMARK_NODE_STRONG, CMARK_NODE_LINK:
             return Array(children.map(\.imageURLs).joined())
         case CMARK_NODE_IMAGE:
             return [url].compactMap { $0 }
