@@ -15,9 +15,9 @@ let package = Package(
             name: "cmark",
             url: "https://github.com/SwiftDocOrg/swift-cmark.git",
             from: Version(
-                0, 28, 3,
+                0, 29, 0,
                 prereleaseIdentifiers: [],
-                buildMetadataIdentifiers: ["20200207", "1168665"]
+                buildMetadataIdentifiers: ["20210102", "9c8096a"]
             )
         ),
     ],
