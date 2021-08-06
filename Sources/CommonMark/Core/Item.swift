@@ -1,8 +1,7 @@
-import cmark
 import Foundation
 
 /// A CommonMark list item.
-public struct Item: Equatable {
+public struct Item: Hashable {
     public let blocks: [Block]
 
     public init(blocks: [Block]) {
@@ -18,16 +17,6 @@ public struct Item: Equatable {
             self.init(blocks: content())
         }
     #endif
-
-    init?(node: Node) {
-        guard case CMARK_NODE_ITEM = node.type else { return nil }
-        self.init(blocks: node.children.map(Block.init))
-    }
-
-    /// Returns a new list item created by applying the specified transform to this item's text elements.
-    public func applyingTransform(_ transform: (String) -> String) -> Item {
-        Item(blocks: blocks.map { $0.applyingTransform(transform) })
-    }
 }
 
 #if swift(>=5.4)
@@ -37,3 +26,9 @@ public struct Item: Equatable {
         }
     }
 #endif
+
+internal extension Item {
+    var isMultiParagraph: Bool {
+        blocks.filter(\.isParagraph).count > 1
+    }
+}
