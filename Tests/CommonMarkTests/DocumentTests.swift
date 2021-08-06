@@ -2,12 +2,12 @@ import CommonMark
 import XCTest
 
 final class DocumentTests: XCTestCase {
-    func testEquatable() {
+    func testEquatable() throws {
         // given
-        let a = Document("# Hello")
-        let b = Document("Lorem *ipsum*")
+        let a = try Document(markdown: "# Hello")
+        let b = try Document(markdown: "Lorem *ipsum*")
         let c = a
-        let d = Document("Lorem _ipsum_")
+        let d = try Document(markdown: "Lorem _ipsum_")
 
         // then
         XCTAssertNotEqual(a, b)
@@ -15,77 +15,18 @@ final class DocumentTests: XCTestCase {
         XCTAssertEqual(b, d)
     }
 
-    func testLosslessConversion() {
-        // given
-        let text = "# __Hello__ *world*\n"
-
-        // when
-        let result = Document(text).description
-
-        // then
-        XCTAssertEqual("# **Hello** *world*\n", result)
-    }
-
-    func testEmptyDocument() {
+    func testEmptyDocument() throws {
         // given
         let content = ""
 
         // when
-        let result = Document(content).blocks
+        let result = try Document(markdown: content).blocks
 
         // then
         XCTAssertEqual([], result)
     }
 
-    func testApplyTransform() {
-        // given
-        let text = """
-        ## Try CommonMark
-
-        You can try CommonMark here.  This dingus is powered by
-        [commonmark.js](https://github.com/jgm/commonmark.js), the
-        `JavaScript` reference implementation.
-
-        ```swift
-        let a = b
-        ```
-
-        1. item one
-        2. item two
-           - sublist
-           - sublist
-        """
-
-        // when
-        let result = Document(text).applyingTransform { text in
-            text.uppercased()
-        }
-
-        // then
-        XCTAssertEqual(
-            Document(
-                """
-                ## TRY COMMONMARK
-
-                YOU CAN TRY COMMONMARK HERE.  THIS DINGUS IS POWERED BY
-                [COMMONMARK.JS](https://github.com/jgm/commonmark.js), THE
-                `JavaScript` REFERENCE IMPLEMENTATION.
-
-                ``` swift
-                let a = b
-                ```
-
-                1.  ITEM ONE
-                2.  ITEM TWO
-                      - SUBLIST
-                      - SUBLIST
-                """
-            ),
-            result
-        )
-    }
-
-    func testBlockQuote() {
+    func testBlockQuote() throws {
         // given
         let text = """
           >Hello
@@ -93,7 +34,7 @@ final class DocumentTests: XCTestCase {
         """
 
         // when
-        let result = Document(text).blocks
+        let result = try Document(markdown: text).blocks
 
         // then
         XCTAssertEqual(
@@ -109,7 +50,7 @@ final class DocumentTests: XCTestCase {
         )
     }
 
-    func testList() {
+    func testList() throws {
         // given
         let text = """
            1. one
@@ -119,7 +60,7 @@ final class DocumentTests: XCTestCase {
         """
 
         // when
-        let result = Document(text).blocks
+        let result = try Document(markdown: text).blocks
 
         // then
         XCTAssertEqual(
@@ -156,7 +97,7 @@ final class DocumentTests: XCTestCase {
         )
     }
 
-    func testLooseList() {
+    func testLooseList() throws {
         // given
         let text = """
            9. one
@@ -167,7 +108,7 @@ final class DocumentTests: XCTestCase {
         """
 
         // when
-        let result = Document(text).blocks
+        let result = try Document(markdown: text).blocks
 
         // then
         XCTAssertEqual(
@@ -205,7 +146,7 @@ final class DocumentTests: XCTestCase {
         )
     }
 
-    func testCodeBlock() {
+    func testCodeBlock() throws {
         // given
         let text = """
            ```swift
@@ -215,7 +156,7 @@ final class DocumentTests: XCTestCase {
         """
 
         // when
-        let result = Document(text).blocks
+        let result = try Document(markdown: text).blocks
 
         // then
         XCTAssertEqual(
@@ -229,12 +170,12 @@ final class DocumentTests: XCTestCase {
         )
     }
 
-    func testHTML() {
+    func testHTML() throws {
         // given
         let text = "<p>Hello world!</p>"
 
         // when
-        let result = Document(text).blocks
+        let result = try Document(markdown: text).blocks
 
         // then
         XCTAssertEqual(
@@ -245,12 +186,12 @@ final class DocumentTests: XCTestCase {
         )
     }
 
-    func testParagraph() {
+    func testParagraph() throws {
         // given
         let text = "Hello world!"
 
         // when
-        let result = Document(text).blocks
+        let result = try Document(markdown: text).blocks
 
         // then
         XCTAssertEqual(
@@ -261,7 +202,7 @@ final class DocumentTests: XCTestCase {
         )
     }
 
-    func testHeading() {
+    func testHeading() throws {
         // given
         let text = """
            # Hello
@@ -269,7 +210,7 @@ final class DocumentTests: XCTestCase {
         """
 
         // when
-        let result = Document(text).blocks
+        let result = try Document(markdown: text).blocks
 
         // then
         XCTAssertEqual(
@@ -281,7 +222,7 @@ final class DocumentTests: XCTestCase {
         )
     }
 
-    func testSoftBreak() {
+    func testSoftBreak() throws {
         // given
         let text = """
            Hello
@@ -289,7 +230,7 @@ final class DocumentTests: XCTestCase {
         """
 
         // when
-        let result = Document(text).blocks
+        let result = try Document(markdown: text).blocks
 
         // then
         XCTAssertEqual(
@@ -304,12 +245,12 @@ final class DocumentTests: XCTestCase {
         )
     }
 
-    func testLineBreak() {
+    func testLineBreak() throws {
         // given
         let text = "Hello  \n      World"
 
         // when
-        let result = Document(text).blocks
+        let result = try Document(markdown: text).blocks
 
         // then
         XCTAssertEqual(
@@ -324,12 +265,12 @@ final class DocumentTests: XCTestCase {
         )
     }
 
-    func testCodeInline() {
+    func testCodeInline() throws {
         // given
         let text = "Returns `nil`."
 
         // when
-        let result = Document(text).blocks
+        let result = try Document(markdown: text).blocks
 
         // then
         XCTAssertEqual(
@@ -344,12 +285,12 @@ final class DocumentTests: XCTestCase {
         )
     }
 
-    func testHTMLInline() {
+    func testHTMLInline() throws {
         // given
         let text = "Returns <code>nil</code>."
 
         // when
-        let result = Document(text).blocks
+        let result = try Document(markdown: text).blocks
 
         // then
         XCTAssertEqual(
@@ -366,12 +307,12 @@ final class DocumentTests: XCTestCase {
         )
     }
 
-    func testEmphasis() {
+    func testEmphasis() throws {
         // given
         let text = "Hello _world_."
 
         // when
-        let result = Document(text).blocks
+        let result = try Document(markdown: text).blocks
 
         // then
         XCTAssertEqual(
@@ -386,12 +327,12 @@ final class DocumentTests: XCTestCase {
         )
     }
 
-    func testStrong() {
+    func testStrong() throws {
         // given
         let text = "Hello __world__."
 
         // when
-        let result = Document(text).blocks
+        let result = try Document(markdown: text).blocks
 
         // then
         XCTAssertEqual(
@@ -406,12 +347,12 @@ final class DocumentTests: XCTestCase {
         )
     }
 
-    func testLink() {
+    func testLink() throws {
         // given
         let text = "Hello [world](https://example.com)."
 
         // when
-        let result = Document(text).blocks
+        let result = try Document(markdown: text).blocks
 
         // then
         XCTAssertEqual(
@@ -426,12 +367,12 @@ final class DocumentTests: XCTestCase {
         )
     }
 
-    func testImage() {
+    func testImage() throws {
         // given
         let text = "Hello ![world](https://example.com/world.jpg)."
 
         // when
-        let result = Document(text).blocks
+        let result = try Document(markdown: text).blocks
 
         // then
         XCTAssertEqual(
@@ -445,46 +386,19 @@ final class DocumentTests: XCTestCase {
             result
         )
     }
-
-    func testImageURLs() {
-        // given
-        let text = """
-        # Heading ![](image1.jpg)
-        Paragraph ![](image2.jpg)
-        > Blockquote ![](image3.jpg)
-        - List ![](image4.jpg)
-        ---
-        Emphasis *![](image5.jpg)* and strong **![](image6.jpg)**\
-        Repeated ![](image3.jpg)
-        [![](image7.jpg)](https://example.com)
-        """
-
-        // when
-        let result = Document(text).imageURLs
-
-        // then
-        XCTAssertEqual(
-            [
-                "image1.jpg", "image2.jpg", "image3.jpg",
-                "image4.jpg", "image5.jpg", "image6.jpg",
-                "image7.jpg",
-            ],
-            result
-        )
-    }
 }
 
 #if swift(>=5.4)
     extension DocumentTests {
-        func testBuildEmptyDocument() {
+        func testBuildEmptyDocument() throws {
             // when
             let result = Document {}
 
             // then
-            XCTAssertEqual(Document(""), result)
+            XCTAssertEqual(try Document(markdown: ""), result)
         }
 
-        func testBuildBlockQuoute() {
+        func testBuildBlockQuoute() throws {
             // when
             let result = Document {
                 BlockQuote {
@@ -497,8 +411,8 @@ final class DocumentTests: XCTestCase {
 
             // then
             XCTAssertEqual(
-                Document(
-                    """
+                try Document(
+                    markdown: """
                       >Hello
                       >>World
                     """
@@ -507,7 +421,7 @@ final class DocumentTests: XCTestCase {
             )
         }
 
-        func testBuildList() {
+        func testBuildList() throws {
             // when
             let result = Document {
                 List(start: 1) {
@@ -526,8 +440,8 @@ final class DocumentTests: XCTestCase {
 
             // then
             XCTAssertEqual(
-                Document(
-                    """
+                try Document(
+                    markdown: """
                        1. one
                        1. two
                           - nested 1
@@ -538,7 +452,7 @@ final class DocumentTests: XCTestCase {
             )
         }
 
-        func testBuildLooseList() {
+        func testBuildLooseList() throws {
             // when
             let result = Document {
                 List(start: 9, spacing: .loose) {
@@ -557,8 +471,8 @@ final class DocumentTests: XCTestCase {
 
             // then
             XCTAssertEqual(
-                Document(
-                    """
+                try Document(
+                    markdown: """
                        9. one
 
                        1. two
@@ -570,7 +484,7 @@ final class DocumentTests: XCTestCase {
             )
         }
 
-        func testBuildMultiParagraphList() {
+        func testBuildMultiParagraphList() throws {
             // when
             let result = Document {
                 List {
@@ -590,8 +504,8 @@ final class DocumentTests: XCTestCase {
 
             // then
             XCTAssertEqual(
-                Document(
-                    """
+                try Document(
+                    markdown: """
                        - one
 
                          2nd paragraph
@@ -605,7 +519,7 @@ final class DocumentTests: XCTestCase {
             )
         }
 
-        func testBuildCodeBlock() {
+        func testBuildCodeBlock() throws {
             // when
             let result = Document {
                 CodeBlock(language: "swift") {
@@ -618,8 +532,8 @@ final class DocumentTests: XCTestCase {
 
             // then
             XCTAssertEqual(
-                Document(
-                    """
+                try Document(
+                    markdown: """
                        ```swift
                        let a = 5
                        let b = 42
@@ -630,17 +544,17 @@ final class DocumentTests: XCTestCase {
             )
         }
 
-        func testBuildParagraph() {
+        func testBuildParagraph() throws {
             // when
             let result = Document {
                 "Hello world!"
             }
 
             // then
-            XCTAssertEqual(Document("Hello world!"), result)
+            XCTAssertEqual(try Document(markdown: "Hello world!"), result)
         }
 
-        func testBuildHeading() {
+        func testBuildHeading() throws {
             // when
             let result = Document {
                 Heading {
@@ -653,8 +567,8 @@ final class DocumentTests: XCTestCase {
 
             // then
             XCTAssertEqual(
-                Document(
-                    """
+                try Document(
+                    markdown: """
                        # Hello
                        ## World
                     """
@@ -663,7 +577,7 @@ final class DocumentTests: XCTestCase {
             )
         }
 
-        func testBuildCodeInline() {
+        func testBuildCodeInline() throws {
             // when
             let result = Document {
                 Paragraph {
@@ -675,12 +589,12 @@ final class DocumentTests: XCTestCase {
 
             // then
             XCTAssertEqual(
-                Document("Returns `nil`."),
+                try Document(markdown: "Returns `nil`."),
                 result
             )
         }
 
-        func testBuildEmphasis() {
+        func testBuildEmphasis() throws {
             // when
             let result = Document {
                 Paragraph {
@@ -692,12 +606,12 @@ final class DocumentTests: XCTestCase {
 
             // then
             XCTAssertEqual(
-                Document("Hello _world_."),
+                try Document(markdown: "Hello _world_."),
                 result
             )
         }
 
-        func testBuildStrong() {
+        func testBuildStrong() throws {
             // when
             let result = Document {
                 Paragraph {
@@ -709,12 +623,12 @@ final class DocumentTests: XCTestCase {
 
             // then
             XCTAssertEqual(
-                Document("Hello __world__."),
+                try Document(markdown: "Hello __world__."),
                 result
             )
         }
 
-        func testBuildLink() {
+        func testBuildLink() throws {
             // when
             let result = Document {
                 Paragraph {
@@ -728,12 +642,12 @@ final class DocumentTests: XCTestCase {
 
             // then
             XCTAssertEqual(
-                Document("Hello [world](https://example.com)."),
+                try Document(markdown: "Hello [world](https://example.com)."),
                 result
             )
         }
 
-        func testBuildImage() {
+        func testBuildImage() throws {
             // when
             let result = Document {
                 Paragraph {
@@ -747,7 +661,7 @@ final class DocumentTests: XCTestCase {
 
             // then
             XCTAssertEqual(
-                Document("Hello ![world](https://example.com/world.jpg)."),
+                try Document(markdown: "Hello ![world](https://example.com/world.jpg)."),
                 result
             )
         }

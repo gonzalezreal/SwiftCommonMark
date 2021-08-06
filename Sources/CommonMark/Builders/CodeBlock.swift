@@ -7,7 +7,7 @@
 
         public init(language: String, text: () -> String) {
             self.language = language
-            self.text = text()
+            self.text = text() + "\n"
         }
 
         public func asBlocks() -> [Block] {

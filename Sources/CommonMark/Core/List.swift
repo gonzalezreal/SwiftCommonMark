@@ -1,25 +1,15 @@
-import cmark
 import Foundation
 
 /// A CommonMark list.
-public struct List: Equatable {
+public struct List: Hashable {
     /// List style.
-    public enum Style: Equatable {
+    public enum Style: Hashable {
         case bullet
         case ordered(start: Int)
-
-        init(_ listType: cmark_list_type, _ listStart: Int) {
-            switch listType {
-            case CMARK_ORDERED_LIST:
-                self = .ordered(start: listStart)
-            default:
-                self = .bullet
-            }
-        }
     }
 
     /// List spacing.
-    public enum Spacing: Equatable {
+    public enum Spacing {
         case loose, tight
     }
 
@@ -34,27 +24,9 @@ public struct List: Equatable {
 
     public init(style: Style = .bullet, spacing: Spacing = .tight, items: [Item]) {
         self.style = style
-        self.spacing = spacing
+        // Force loose spacing if any of the items contains more than one paragraph
+        self.spacing = items.contains(where: \.isMultiParagraph) ? .loose : spacing
         self.items = items
-    }
-
-    init(node: Node) {
-        assert(node.type == CMARK_NODE_LIST)
-
-        self.init(
-            style: Style(node.listType, node.listStart),
-            spacing: node.listTight ? .tight : .loose,
-            items: node.children.compactMap(Item.init)
-        )
-    }
-
-    /// Returns a new list created by applying the specified transform to this list's text elements.
-    public func applyingTransform(_ transform: (String) -> String) -> List {
-        List(
-            style: style,
-            spacing: spacing,
-            items: items.map { $0.applyingTransform(transform) }
-        )
     }
 }
 

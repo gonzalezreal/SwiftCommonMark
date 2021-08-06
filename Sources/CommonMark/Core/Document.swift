@@ -1,34 +1,27 @@
-import cmark
 import Foundation
 
 /// A CommonMark document.
-public struct Document {
+public struct Document: Hashable {
     /// The blocks that form this document.
-    public var blocks: [Block] {
-        node.children.map(Block.init)
+    public var blocks: [Block]
+
+    public init(markdown: String, options: ParsingOptions = .init()) throws {
+        guard let node = CommonMarkNode(markdown: markdown, options: options.rawValue) else {
+            throw ParsingError.invalidData
+        }
+        self.init(blocks: node.children.compactMap(Block.init))
     }
 
-    /// A set with all the image locations contained in this document.
-    public var imageURLs: Set<String> {
-        Set(node.imageURLs)
+    public init(markdown: Data, options: ParsingOptions = .init()) throws {
+        try self.init(markdown: String(decoding: markdown, as: UTF8.self), options: options)
     }
 
-    private let node: Node
-
-    public init(_ content: String) {
-        node = Node(content)!
-    }
-
-    public init(contentsOfFile path: String) throws {
-        try self.init(String(contentsOfFile: path))
-    }
-
-    public init(contentsOfFile path: String, encoding: String.Encoding) throws {
-        try self.init(String(contentsOfFile: path, encoding: encoding))
+    public init(contentsOf url: URL, options: ParsingOptions = .init()) throws {
+        try self.init(markdown: Data(contentsOf: url), options: options)
     }
 
     public init(blocks: [Block]) {
-        node = Node(blocks: blocks)
+        self.blocks = blocks
     }
 
     #if swift(>=5.4)
@@ -36,47 +29,14 @@ public struct Document {
             self.init(blocks: content())
         }
     #endif
-
-    /// Returns a new document created by applying the specified transform to this document's text elements.
-    public func applyingTransform(_ transform: (String) -> String) -> Document {
-        Document(blocks: blocks.map { $0.applyingTransform(transform) })
-    }
-}
-
-extension Document: Equatable {
-    public static func == (lhs: Document, rhs: Document) -> Bool {
-        if lhs.node === rhs.node {
-            return true
-        } else {
-            return lhs.node.description == rhs.node.description
-        }
-    }
-}
-
-extension Document: Hashable {
-    public func hash(into hasher: inout Hasher) {
-        hasher.combine(node.description)
-    }
-}
-
-extension Document: CustomStringConvertible {
-    public var description: String {
-        node.description
-    }
-}
-
-extension Document: ExpressibleByStringInterpolation {
-    public init(stringLiteral value: StringLiteralType) {
-        self.init(value)
-    }
 }
 
 extension Document: Codable {
     public init(from decoder: Decoder) throws {
         let container = try decoder.singleValueContainer()
-        let content = try container.decode(String.self)
+        let markdown = try container.decode(String.self)
 
-        self.init(content)
+        try self.init(markdown: markdown)
     }
 
     public func encode(to encoder: Encoder) throws {
