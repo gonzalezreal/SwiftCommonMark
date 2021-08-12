@@ -16,8 +16,8 @@
             // then
             XCTAssertEqual(
                 [
-                    .paragraph([.text("Hello")]),
-                    .paragraph([.text("world!")]),
+                    .paragraph(text: [.text("Hello")]),
+                    .paragraph(text: [.text("world!")]),
                 ],
                 result
             )
@@ -37,10 +37,10 @@
             // then
             XCTAssertEqual(
                 [
-                    .paragraph([.text("0")]),
-                    .paragraph([.text("1")]),
-                    .paragraph([.text("2")]),
-                    .paragraph([.text("3")]),
+                    .paragraph(text: [.text("0")]),
+                    .paragraph(text: [.text("1")]),
+                    .paragraph(text: [.text("2")]),
+                    .paragraph(text: [.text("3")]),
                 ],
                 result
             )
@@ -62,9 +62,9 @@
             // then
             XCTAssertEqual(
                 [
-                    .paragraph([.text("Something is:")]),
+                    .paragraph(text: [.text("Something is:")]),
                     .blockQuote(
-                        [.paragraph([.text("true")])]
+                        items: [.paragraph(text: [.text("true")])]
                     ),
                 ],
                 result
@@ -90,17 +90,17 @@
             // then
             XCTAssertEqual(
                 [
-                    .paragraph([.text("Something is:")]),
+                    .paragraph(text: [.text("Something is:")]),
                     .blockQuote(
-                        [.paragraph([.text("true")])]
+                        items: [.paragraph(text: [.text("true")])]
                     ),
                 ],
                 result1
             )
             XCTAssertEqual(
                 [
-                    .paragraph([.text("Something is:")]),
-                    .paragraph([.text("false")]),
+                    .paragraph(text: [.text("Something is:")]),
+                    .paragraph(text: [.text("false")]),
                 ],
                 result2
             )
