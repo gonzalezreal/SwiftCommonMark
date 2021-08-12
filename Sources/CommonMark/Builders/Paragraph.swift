@@ -13,7 +13,7 @@
         }
 
         public func asBlocks() -> [Block] {
-            [.paragraph(inlines)]
+            [.paragraph(text: inlines)]
         }
     }
 #endif

@@ -13,7 +13,7 @@
         }
 
         public func asBlocks() -> [Block] {
-            [.blockQuote(blocks)]
+            [.blockQuote(items: blocks)]
         }
     }
 #endif

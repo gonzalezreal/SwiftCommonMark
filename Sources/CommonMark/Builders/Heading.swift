@@ -11,7 +11,7 @@
         }
 
         public func asBlocks() -> [Block] {
-            [.heading(inlines, level: level)]
+            [.heading(text: inlines, level: level)]
         }
     }
 #endif

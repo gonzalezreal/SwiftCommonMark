@@ -18,12 +18,12 @@
                 [
                     Item(
                         blocks: [
-                            .paragraph([.text("Hello")]),
+                            .paragraph(text: [.text("Hello")]),
                         ]
                     ),
                     Item(
                         blocks: [
-                            .paragraph([.text("world!")]),
+                            .paragraph(text: [.text("world!")]),
                         ]
                     ),
                 ],
@@ -47,22 +47,22 @@
                 [
                     Item(
                         blocks: [
-                            .paragraph([.text("0")]),
+                            .paragraph(text: [.text("0")]),
                         ]
                     ),
                     Item(
                         blocks: [
-                            .paragraph([.text("1")]),
+                            .paragraph(text: [.text("1")]),
                         ]
                     ),
                     Item(
                         blocks: [
-                            .paragraph([.text("2")]),
+                            .paragraph(text: [.text("2")]),
                         ]
                     ),
                     Item(
                         blocks: [
-                            .paragraph([.text("3")]),
+                            .paragraph(text: [.text("3")]),
                         ]
                     ),
                 ],
@@ -90,13 +90,13 @@
                 [
                     Item(
                         blocks: [
-                            .paragraph([.text("Something is:")]),
+                            .paragraph(text: [.text("Something is:")]),
                         ]
                     ),
                     Item(
                         blocks: [
                             .blockQuote(
-                                [.paragraph([.text("true")])]
+                                items: [.paragraph(text: [.text("true")])]
                             ),
                         ]
                     ),
@@ -128,13 +128,13 @@
                 [
                     Item(
                         blocks: [
-                            .paragraph([.text("Something is:")]),
+                            .paragraph(text: [.text("Something is:")]),
                         ]
                     ),
                     Item(
                         blocks: [
                             .blockQuote(
-                                [.paragraph([.text("true")])]
+                                items: [.paragraph(text: [.text("true")])]
                             ),
                         ]
                     ),
@@ -145,12 +145,12 @@
                 [
                     Item(
                         blocks: [
-                            .paragraph([.text("Something is:")]),
+                            .paragraph(text: [.text("Something is:")]),
                         ]
                     ),
                     Item(
                         blocks: [
-                            .paragraph([.text("false")]),
+                            .paragraph(text: [.text("false")]),
                         ]
                     ),
                 ],

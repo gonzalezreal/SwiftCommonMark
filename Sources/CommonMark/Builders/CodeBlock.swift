@@ -11,7 +11,7 @@
         }
 
         public func asBlocks() -> [Block] {
-            [.code(text, language: language)]
+            [.code(text: text, info: language)]
         }
     }
 #endif
