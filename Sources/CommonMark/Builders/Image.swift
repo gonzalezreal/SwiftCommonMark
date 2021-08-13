@@ -2,24 +2,24 @@
     import Foundation
 
     public struct Image: InlineConvertible {
-        private let url: URL
-        private let title: String
+        private let url: URL?
+        private let title: String?
         private let inlines: [Inline]
 
-        public init(url: URL, title: String = "", @InlineBuilder content: () -> [Inline]) {
+        public init(url: URL?, title: String? = nil, @InlineBuilder content: () -> [Inline]) {
             self.url = url
             self.title = title
             inlines = content()
         }
 
-        public init(url: URL, title: String = "") {
+        public init(url: URL?, title: String? = nil) {
             self.url = url
             self.title = title
             inlines = []
         }
 
         public func asInlines() -> [Inline] {
-            [.image(inlines, url: url.absoluteString, title: title)]
+            [.image(children: inlines, url: url, title: title)]
         }
     }
 #endif

@@ -13,7 +13,7 @@
         }
 
         public func asInlines() -> [Inline] {
-            [.strong(inlines)]
+            [.strong(children: inlines)]
         }
     }
 #endif

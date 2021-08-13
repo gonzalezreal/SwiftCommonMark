@@ -295,7 +295,7 @@ final class DocumentTests: XCTestCase {
             [
                 .paragraph(text: [
                     .text("Hello "),
-                    .emphasis([.text("world")]),
+                    .emphasis(children: [.text("world")]),
                     .text("."),
                 ]),
             ],
@@ -315,7 +315,7 @@ final class DocumentTests: XCTestCase {
             [
                 .paragraph(text: [
                     .text("Hello "),
-                    .strong([.text("world")]),
+                    .strong(children: [.text("world")]),
                     .text("."),
                 ]),
             ],
@@ -335,7 +335,7 @@ final class DocumentTests: XCTestCase {
             [
                 .paragraph(text: [
                     .text("Hello "),
-                    .link([.text("world")], url: "https://example.com"),
+                    .link(children: [.text("world")], url: URL(string: "https://example.com")),
                     .text("."),
                 ]),
             ],
@@ -355,7 +355,7 @@ final class DocumentTests: XCTestCase {
             [
                 .paragraph(text: [
                     .text("Hello "),
-                    .image([.text("world")], url: "https://example.com/world.jpg"),
+                    .image(children: [.text("world")], url: URL(string: "https://example.com/world.jpg")),
                     .text("."),
                 ]),
             ],
@@ -610,7 +610,7 @@ final class DocumentTests: XCTestCase {
             let result = Document {
                 Paragraph {
                     "Hello "
-                    Link(url: "https://example.com") {
+                    Link(url: URL(string: "https://example.com")) {
                         "world"
                     }
                     "."
@@ -629,7 +629,7 @@ final class DocumentTests: XCTestCase {
             let result = Document {
                 Paragraph {
                     "Hello "
-                    Image(url: "https://example.com/world.jpg") {
+                    Image(url: URL(string: "https://example.com/world.jpg")) {
                         "world"
                     }
                     "."
@@ -644,12 +644,3 @@ final class DocumentTests: XCTestCase {
         }
     }
 #endif
-
-extension URL: ExpressibleByStringLiteral {
-    public init(stringLiteral value: StaticString) {
-        guard let url = URL(string: "\(value)") else {
-            fatalError("Invalid URL: \(value)")
-        }
-        self = url
-    }
-}
