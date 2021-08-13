@@ -1,8 +1,8 @@
 import Foundation
 
-/// A CommonMark document inline.
+/// An inline-level element in a heading or paragraph.
 public enum Inline: Hashable {
-    /// Plain textual content.
+    /// Textual content.
     case text(String)
 
     /// Soft line break.
@@ -18,14 +18,14 @@ public enum Inline: Hashable {
     case html(String)
 
     /// Emphasis.
-    case emphasis([Inline])
+    case emphasis(children: [Inline])
 
     /// Strong emphasis.
-    case strong([Inline])
+    case strong(children: [Inline])
 
     /// Link.
-    case link([Inline], url: String, title: String = "")
+    case link(children: [Inline], url: URL?, title: String? = nil)
 
     /// Image.
-    case image([Inline], url: String, title: String = "")
+    case image(children: [Inline], url: URL?, title: String? = nil)
 }

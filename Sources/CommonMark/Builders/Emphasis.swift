@@ -13,7 +13,7 @@
         }
 
         public func asInlines() -> [Inline] {
-            [.emphasis(inlines)]
+            [.emphasis(children: inlines)]
         }
     }
 #endif

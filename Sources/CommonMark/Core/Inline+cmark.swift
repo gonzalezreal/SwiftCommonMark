@@ -27,20 +27,20 @@ internal extension Inline {
         case CMARK_NODE_HTML_INLINE:
             self = .html(commonMarkNode.literal!)
         case CMARK_NODE_EMPH:
-            self = .emphasis(commonMarkNode.children.compactMap(Inline.init))
+            self = .emphasis(children: commonMarkNode.children.compactMap(Inline.init))
         case CMARK_NODE_STRONG:
-            self = .strong(commonMarkNode.children.compactMap(Inline.init))
+            self = .strong(children: commonMarkNode.children.compactMap(Inline.init))
         case CMARK_NODE_LINK:
             self = .link(
-                commonMarkNode.children.compactMap(Inline.init),
-                url: commonMarkNode.url ?? "",
-                title: commonMarkNode.title ?? ""
+                children: commonMarkNode.children.compactMap(Inline.init),
+                url: commonMarkNode.url.flatMap(URL.init(string:)),
+                title: commonMarkNode.title?.isEmpty ?? true ? nil : commonMarkNode.title
             )
         case CMARK_NODE_IMAGE:
             self = .image(
-                commonMarkNode.children.compactMap(Inline.init),
-                url: commonMarkNode.url ?? "",
-                title: commonMarkNode.title ?? ""
+                children: commonMarkNode.children.compactMap(Inline.init),
+                url: commonMarkNode.url.flatMap(URL.init(string:)),
+                title: commonMarkNode.title?.isEmpty ?? true ? nil : commonMarkNode.title
             )
         default:
             assertionFailure("Unknown inline type '\(commonMarkNode.typeString)'")
@@ -79,9 +79,10 @@ internal extension CommonMarkNode {
             }
         case let .link(children, url, title):
             cmark_node = cmark_node_new(CMARK_NODE_LINK)
-            // HTML rendering crashes if the url is empty or not set
-            cmark_node_set_url(cmark_node, url.isEmpty ? "/" : url)
-            if !title.isEmpty {
+            if let url = url {
+                cmark_node_set_url(cmark_node, url.absoluteString)
+            }
+            if let title = title {
                 cmark_node_set_title(cmark_node, title)
             }
             children.map(CommonMarkNode.init(inline:)).forEach { node in
@@ -89,9 +90,10 @@ internal extension CommonMarkNode {
             }
         case let .image(children, url, title):
             cmark_node = cmark_node_new(CMARK_NODE_IMAGE)
-            // HTML rendering crashes if the url is empty or not set
-            cmark_node_set_url(cmark_node, url.isEmpty ? "/" : url)
-            if !title.isEmpty {
+            if let url = url {
+                cmark_node_set_url(cmark_node, url.absoluteString)
+            }
+            if let title = title {
                 cmark_node_set_title(cmark_node, title)
             }
             children.map(CommonMarkNode.init(inline:)).forEach { node in

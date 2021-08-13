@@ -18,7 +18,7 @@
                 [
                     .text("Hello "),
                     .strong(
-                        [.text("world!")]
+                        children: [.text("world!")]
                     ),
                 ],
                 result
@@ -66,7 +66,7 @@
                 [
                     .text("Something is "),
                     .emphasis(
-                        [.text("true")]
+                        children: [.text("true")]
                     ),
                 ],
                 result
@@ -94,7 +94,7 @@
                 [
                     .text("Something is "),
                     .emphasis(
-                        [.text("true")]
+                        children: [.text("true")]
                     ),
                 ],
                 result1
