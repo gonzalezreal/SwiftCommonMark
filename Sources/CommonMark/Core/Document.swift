@@ -25,8 +25,8 @@ public struct Document: Hashable {
     }
 
     #if swift(>=5.4)
-        public init(@BlockBuilder content: () -> [Block]) {
-            self.init(blocks: content())
+        public init(@BlockArrayBuilder blocks: () -> [Block]) {
+            self.init(blocks: blocks())
         }
     #endif
 }

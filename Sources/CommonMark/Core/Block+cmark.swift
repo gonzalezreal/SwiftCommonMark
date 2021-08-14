@@ -3,13 +3,13 @@ import Foundation
 
 public extension Block {
     func renderCommonMark() -> String {
-        let node = CommonMarkNode(block: self)
-        return String(cString: cmark_render_commonmark(node.cmark_node, CMARK_OPT_DEFAULT, 0))
+        let node = CommonMarkNode(block: self, managed: true)
+        return String(cString: cmark_render_commonmark(node.pointer, CMARK_OPT_DEFAULT, 0))
     }
 
     func renderHTML(options: Document.RenderingOptions = .init()) -> String {
-        let node = CommonMarkNode(block: self)
-        return String(cString: cmark_render_html(node.cmark_node, options.rawValue))
+        let node = CommonMarkNode(block: self, managed: true)
+        return String(cString: cmark_render_html(node.pointer, options.rawValue))
     }
 }
 
@@ -63,63 +63,73 @@ private extension Array where Element == Block {
 }
 
 internal extension CommonMarkNode {
-    convenience init(block: Block) {
-        let cmark_node: OpaquePointer
+    convenience init(block: Block, managed: Bool) {
+        let pointer: OpaquePointer
 
         switch block {
         case let .blockQuote(items):
-            cmark_node = cmark_node_new(CMARK_NODE_BLOCK_QUOTE)
-            items.map(CommonMarkNode.init(block:)).forEach { node in
-                cmark_node_append_child(cmark_node, node.cmark_node)
+            pointer = cmark_node_new(CMARK_NODE_BLOCK_QUOTE)
+            items.map {
+                CommonMarkNode(block: $0, managed: false)
+            }.forEach { node in
+                cmark_node_append_child(pointer, node.pointer)
             }
         case let .list(items, type, tight):
-            cmark_node = cmark_node_new(CMARK_NODE_LIST)
+            pointer = cmark_node_new(CMARK_NODE_LIST)
             switch type {
             case .bullet:
-                cmark_node_set_list_type(cmark_node, CMARK_BULLET_LIST)
+                cmark_node_set_list_type(pointer, CMARK_BULLET_LIST)
             case let .ordered(start):
-                cmark_node_set_list_type(cmark_node, CMARK_ORDERED_LIST)
-                cmark_node_set_list_start(cmark_node, Int32(start))
+                cmark_node_set_list_type(pointer, CMARK_ORDERED_LIST)
+                cmark_node_set_list_start(pointer, Int32(start))
             }
-            cmark_node_set_list_tight(cmark_node, tight ? 1 : 0)
-            items.map(CommonMarkNode.init(item:)).forEach { childNode in
-                cmark_node_append_child(cmark_node, childNode.cmark_node)
+            cmark_node_set_list_tight(pointer, tight ? 1 : 0)
+            items.map {
+                CommonMarkNode(item: $0)
+            }.forEach { childNode in
+                cmark_node_append_child(pointer, childNode.pointer)
             }
         case let .code(text, info):
-            cmark_node = cmark_node_new(CMARK_NODE_CODE_BLOCK)
-            cmark_node_set_literal(cmark_node, text)
+            pointer = cmark_node_new(CMARK_NODE_CODE_BLOCK)
+            cmark_node_set_literal(pointer, text)
             if let info = info, !info.isEmpty {
-                cmark_node_set_fence_info(cmark_node, info)
+                cmark_node_set_fence_info(pointer, info)
             }
         case let .html(text):
-            cmark_node = cmark_node_new(CMARK_NODE_HTML_BLOCK)
-            cmark_node_set_literal(cmark_node, text)
-        case let .paragraph(children):
-            cmark_node = cmark_node_new(CMARK_NODE_PARAGRAPH)
-            children.map(CommonMarkNode.init(inline:)).forEach { node in
-                cmark_node_append_child(cmark_node, node.cmark_node)
+            pointer = cmark_node_new(CMARK_NODE_HTML_BLOCK)
+            cmark_node_set_literal(pointer, text)
+        case let .paragraph(text):
+            pointer = cmark_node_new(CMARK_NODE_PARAGRAPH)
+            text.map {
+                CommonMarkNode(inline: $0, managed: false)
+            }.forEach { node in
+                cmark_node_append_child(pointer, node.pointer)
             }
         case let .heading(text, level):
-            cmark_node = cmark_node_new(CMARK_NODE_HEADING)
-            cmark_node_set_heading_level(cmark_node, Int32(level))
-            text.map(CommonMarkNode.init(inline:)).forEach { node in
-                cmark_node_append_child(cmark_node, node.cmark_node)
+            pointer = cmark_node_new(CMARK_NODE_HEADING)
+            cmark_node_set_heading_level(pointer, Int32(level))
+            text.map {
+                CommonMarkNode(inline: $0, managed: false)
+            }.forEach { node in
+                cmark_node_append_child(pointer, node.pointer)
             }
         case .thematicBreak:
-            cmark_node = cmark_node_new(CMARK_NODE_THEMATIC_BREAK)
+            pointer = cmark_node_new(CMARK_NODE_THEMATIC_BREAK)
         }
 
-        self.init(cmark_node)
+        self.init(pointer: pointer, managed: managed)
     }
 }
 
 private extension CommonMarkNode {
     convenience init(item: [Block]) {
-        let cmark_node: OpaquePointer = cmark_node_new(CMARK_NODE_ITEM)
-        item.map(CommonMarkNode.init(block:)).forEach { childNode in
-            cmark_node_append_child(cmark_node, childNode.cmark_node)
+        let pointer: OpaquePointer = cmark_node_new(CMARK_NODE_ITEM)
+        item.map {
+            CommonMarkNode(block: $0, managed: false)
+        }.forEach { node in
+            cmark_node_append_child(pointer, node.pointer)
         }
 
-        self.init(cmark_node)
+        self.init(pointer: pointer, managed: false)
     }
 }
