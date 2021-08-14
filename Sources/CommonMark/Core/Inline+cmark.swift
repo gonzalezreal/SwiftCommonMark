@@ -3,13 +3,13 @@ import Foundation
 
 public extension Inline {
     func renderCommonMark() -> String {
-        let node = CommonMarkNode(inline: self)
-        return String(cString: cmark_render_commonmark(node.cmark_node, CMARK_OPT_DEFAULT, 0))
+        let node = CommonMarkNode(inline: self, managed: true)
+        return String(cString: cmark_render_commonmark(node.pointer, CMARK_OPT_DEFAULT, 0))
     }
 
     func renderHTML(options: Document.RenderingOptions = .init()) -> String {
-        let node = CommonMarkNode(inline: self)
-        return String(cString: cmark_render_html(node.cmark_node, options.rawValue))
+        let node = CommonMarkNode(inline: self, managed: true)
+        return String(cString: cmark_render_html(node.pointer, options.rawValue))
     }
 }
 
@@ -50,57 +50,65 @@ internal extension Inline {
 }
 
 internal extension CommonMarkNode {
-    convenience init(inline: Inline) {
-        let cmark_node: OpaquePointer
+    convenience init(inline: Inline, managed: Bool) {
+        let pointer: OpaquePointer
 
         switch inline {
         case let .text(literal):
-            cmark_node = cmark_node_new(CMARK_NODE_TEXT)
-            cmark_node_set_literal(cmark_node, literal)
+            pointer = cmark_node_new(CMARK_NODE_TEXT)
+            cmark_node_set_literal(pointer, literal)
         case .softBreak:
-            cmark_node = cmark_node_new(CMARK_NODE_SOFTBREAK)
+            pointer = cmark_node_new(CMARK_NODE_SOFTBREAK)
         case .lineBreak:
-            cmark_node = cmark_node_new(CMARK_NODE_LINEBREAK)
+            pointer = cmark_node_new(CMARK_NODE_LINEBREAK)
         case let .code(literal):
-            cmark_node = cmark_node_new(CMARK_NODE_CODE)
-            cmark_node_set_literal(cmark_node, literal)
+            pointer = cmark_node_new(CMARK_NODE_CODE)
+            cmark_node_set_literal(pointer, literal)
         case let .html(literal):
-            cmark_node = cmark_node_new(CMARK_NODE_HTML_INLINE)
-            cmark_node_set_literal(cmark_node, literal)
+            pointer = cmark_node_new(CMARK_NODE_HTML_INLINE)
+            cmark_node_set_literal(pointer, literal)
         case let .emphasis(children):
-            cmark_node = cmark_node_new(CMARK_NODE_EMPH)
-            children.map(CommonMarkNode.init(inline:)).forEach { node in
-                cmark_node_append_child(cmark_node, node.cmark_node)
+            pointer = cmark_node_new(CMARK_NODE_EMPH)
+            children.map {
+                CommonMarkNode(inline: $0, managed: false)
+            }.forEach { node in
+                cmark_node_append_child(pointer, node.pointer)
             }
         case let .strong(children):
-            cmark_node = cmark_node_new(CMARK_NODE_STRONG)
-            children.map(CommonMarkNode.init(inline:)).forEach { node in
-                cmark_node_append_child(cmark_node, node.cmark_node)
+            pointer = cmark_node_new(CMARK_NODE_STRONG)
+            children.map {
+                CommonMarkNode(inline: $0, managed: false)
+            }.forEach { node in
+                cmark_node_append_child(pointer, node.pointer)
             }
         case let .link(children, url, title):
-            cmark_node = cmark_node_new(CMARK_NODE_LINK)
+            pointer = cmark_node_new(CMARK_NODE_LINK)
             if let url = url {
-                cmark_node_set_url(cmark_node, url.absoluteString)
+                cmark_node_set_url(pointer, url.absoluteString)
             }
             if let title = title {
-                cmark_node_set_title(cmark_node, title)
+                cmark_node_set_title(pointer, title)
             }
-            children.map(CommonMarkNode.init(inline:)).forEach { node in
-                cmark_node_append_child(cmark_node, node.cmark_node)
+            children.map {
+                CommonMarkNode(inline: $0, managed: false)
+            }.forEach { node in
+                cmark_node_append_child(pointer, node.pointer)
             }
         case let .image(children, url, title):
-            cmark_node = cmark_node_new(CMARK_NODE_IMAGE)
+            pointer = cmark_node_new(CMARK_NODE_IMAGE)
             if let url = url {
-                cmark_node_set_url(cmark_node, url.absoluteString)
+                cmark_node_set_url(pointer, url.absoluteString)
             }
             if let title = title {
-                cmark_node_set_title(cmark_node, title)
+                cmark_node_set_title(pointer, title)
             }
-            children.map(CommonMarkNode.init(inline:)).forEach { node in
-                cmark_node_append_child(cmark_node, node.cmark_node)
+            children.map {
+                CommonMarkNode(inline: $0, managed: false)
+            }.forEach { node in
+                cmark_node_append_child(pointer, node.pointer)
             }
         }
 
-        self.init(cmark_node)
+        self.init(pointer: pointer, managed: managed)
     }
 }

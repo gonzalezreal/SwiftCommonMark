@@ -23,10 +23,3 @@ public enum Block: Hashable {
     /// A thematic break.
     case thematicBreak
 }
-
-internal extension Block {
-    var isParagraph: Bool {
-        guard case .paragraph = self else { return false }
-        return true
-    }
-}
