@@ -363,17 +363,158 @@ final class DocumentTests: XCTestCase {
         )
     }
 
-    // TODO: test Codable
+    func testCodable() throws {
+        struct Model: Codable, Equatable {
+            let markdownText: Document
+        }
+
+        // given
+        let json = ##"{"markdownText":"# Hello *world*\n"}"##.data(using: .utf8)!
+        let model = Model(
+            markdownText: Document(
+                blocks: [
+                    .heading(text: [.text("Hello "), .emphasis(children: [.text("world")])], level: 1),
+                ]
+            )
+        )
+
+        // when
+        let decoded = try JSONDecoder().decode(Model.self, from: json)
+        let encoded = try JSONEncoder().encode(decoded)
+
+        // then
+        XCTAssertEqual(model, decoded)
+        XCTAssertEqual(json, encoded)
+    }
 }
 
 #if swift(>=5.4)
     extension DocumentTests {
-        func testBuildEmptyDocument() throws {
+        func testBuildEmptyDocument() {
             // when
             let result = Document {}
 
             // then
-            XCTAssertEqual(try Document(markdown: ""), result)
+            XCTAssertEqual("\n", result.renderCommonMark())
+            XCTAssertEqual("", result.renderHTML())
+        }
+
+        func testBuildDocument() {
+            // when
+            let result = Document {
+                Heading {
+                    "Structured documents"
+                }
+                Paragraph {
+                    "Sometimes it's useful to have different levels of headings to structure your documents. "
+                    "Start lines with a "
+                    Code("#")
+                    " to create headings. Multiple "
+                    Code("##")
+                    " in a row denote smaller heading sizes."
+                }
+                Heading(level: 3) {
+                    "This is a third-tier heading"
+                }
+                Paragraph {
+                    "If you'd like to quote someone, use the > character before the line:"
+                }
+                BlockQuote {
+                    "Coffee. The finest organic suspension ever devised... I beat the Borg with it."
+                }
+                Paragraph {
+                    "It's very easy to make some words "
+                    Strong("bold")
+                    " and other words "
+                    Emphasis("italic")
+                    " with Markdown. You can even "
+                    Link("http://google.com") {
+                        "link to Google!"
+                    }
+                }
+                Paragraph {
+                    "Sometimes you want numbered lists:"
+                }
+                List(start: 1) {
+                    "One"
+                    "Two"
+                    "Three"
+                }
+                Paragraph {
+                    "Sometimes you want bullet points:"
+                }
+                List {
+                    "Start a line with a star"
+                    "Profit!"
+                }
+                Paragraph {
+                    "If you want to embed images, this is how you do it:"
+                }
+                Paragraph {
+                    Image("https://octodex.github.com/images/yaktocat.png", alt: "Image of Yaktocat")
+                }
+            }
+
+            // then
+            XCTAssertEqual(
+                #"""
+                # Structured documents
+
+                Sometimes it's useful to have different levels of headings to structure your documents. Start lines with a `#` to create headings. Multiple `##` in a row denote smaller heading sizes.
+
+                ### This is a third-tier heading
+
+                If you'd like to quote someone, use the \> character before the line:
+
+                > Coffee. The finest organic suspension ever devised... I beat the Borg with it.
+
+                It's very easy to make some words **bold** and other words *italic* with Markdown. You can even [link to Google\!](http://google.com)
+
+                Sometimes you want numbered lists:
+
+                1.  One
+                2.  Two
+                3.  Three
+
+                Sometimes you want bullet points:
+
+                  - Start a line with a star
+                  - Profit\!
+
+                If you want to embed images, this is how you do it:
+
+                ![Image of Yaktocat](https://octodex.github.com/images/yaktocat.png)
+
+                """#,
+                result.renderCommonMark()
+            )
+            XCTAssertEqual(
+                #"""
+                <h1>Structured documents</h1>
+                <p>Sometimes it's useful to have different levels of headings to structure your documents. Start lines with a <code>#</code> to create headings. Multiple <code>##</code> in a row denote smaller heading sizes.</p>
+                <h3>This is a third-tier heading</h3>
+                <p>If you'd like to quote someone, use the &gt; character before the line:</p>
+                <blockquote>
+                <p>Coffee. The finest organic suspension ever devised... I beat the Borg with it.</p>
+                </blockquote>
+                <p>It's very easy to make some words <strong>bold</strong> and other words <em>italic</em> with Markdown. You can even <a href="http://google.com">link to Google!</a></p>
+                <p>Sometimes you want numbered lists:</p>
+                <ol>
+                <li>One</li>
+                <li>Two</li>
+                <li>Three</li>
+                </ol>
+                <p>Sometimes you want bullet points:</p>
+                <ul>
+                <li>Start a line with a star</li>
+                <li>Profit!</li>
+                </ul>
+                <p>If you want to embed images, this is how you do it:</p>
+                <p><img src="https://octodex.github.com/images/yaktocat.png" alt="Image of Yaktocat" /></p>
+
+                """#,
+                result.renderHTML()
+            )
         }
     }
 #endif

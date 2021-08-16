@@ -59,9 +59,9 @@
             self.title = title
         }
 
-        public init(_ string: StaticString, title: String? = nil, @InlineArrayBuilder children: () -> [Inline]) {
+        public init(_ destination: StaticString, title: String? = nil, @InlineArrayBuilder children: () -> [Inline]) {
             self.children = children()
-            url = URL(string: "\(string)")
+            url = URL(string: "\(destination)")
             self.title = title
         }
     }
@@ -77,9 +77,9 @@
             self.title = title
         }
 
-        public init(_ string: StaticString, alt: String? = nil, title: String? = nil) {
+        public init(_ destination: StaticString, alt: String? = nil, title: String? = nil) {
             children = alt.map { [.text($0)] } ?? []
-            url = URL(string: "\(string)")
+            url = URL(string: "\(destination)")
             self.title = title
         }
     }

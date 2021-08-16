@@ -3,11 +3,6 @@
     import XCTest
 
     final class BlockArrayBuilderTests: XCTestCase {
-        func testCaca() {
-            let block = Block.heading(text: [.text("Hola")], level: 29)
-            print(block.renderCommonMark())
-        }
-
         func testExpressions() {
             // given
             @BlockArrayBuilder func build() -> [Block] {
