@@ -1,7 +1,7 @@
 import Foundation
 
-public extension Document {
-    enum ParsingError: Error {
-        case invalidData
-    }
+extension Document {
+  public enum ParsingError: Error {
+    case invalidData
+  }
 }
