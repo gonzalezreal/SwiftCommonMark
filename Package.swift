@@ -6,22 +6,30 @@ let package = Package(
     name: "SwiftCommonMark",
     products: [
         .library(
+            name: "cmark",
+            targets: ["cmark"]
+        ),
+        .library(
             name: "CommonMark",
             targets: ["CommonMark"]
         ),
     ],
-    dependencies: [
-        .package(
-            name: "cmark",
-            url: "https://github.com/SwiftDocOrg/swift-cmark.git",
-            from: Version(
-                0, 29, 0,
-                prereleaseIdentifiers: [],
-                buildMetadataIdentifiers: ["20210102", "9c8096a"]
-            )
-        ),
-    ],
+    dependencies: [],
     targets: [
+        .target(
+            name: "cmark",
+            exclude: [
+                "entities.inc",
+                "case_fold_switch.inc",
+                "cmark_version.h.in",
+                "config.h.in",
+                "libcmark.pc.in",
+                "CMakeLists.txt",
+                "scanners.re",
+                "cmarkConfig.cmake.in",
+                "main.c",
+            ]
+        ),
         .target(
             name: "CommonMark",
             dependencies: ["cmark"]
