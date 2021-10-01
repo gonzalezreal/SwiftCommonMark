@@ -1,15 +1,15 @@
-import cmark
 import Foundation
+import cmark
 
-public extension Document {
-    struct ParsingOptions: OptionSet {
-        public var rawValue: Int32
+extension Document {
+  public struct ParsingOptions: OptionSet {
+    public var rawValue: Int32
 
-        public init(rawValue: Int32 = CMARK_OPT_DEFAULT) {
-            self.rawValue = rawValue
-        }
-
-        /// Convert straight quotes to curly, --- to em dashes, -- to en dashes.
-        public static let smart = ParsingOptions(rawValue: CMARK_OPT_SMART)
+    public init(rawValue: Int32 = CMARK_OPT_DEFAULT) {
+      self.rawValue = rawValue
     }
+
+    /// Convert straight quotes to curly, --- to em dashes, -- to en dashes.
+    public static let smart = ParsingOptions(rawValue: CMARK_OPT_SMART)
+  }
 }

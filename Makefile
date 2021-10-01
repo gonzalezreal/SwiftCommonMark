@@ -9,6 +9,6 @@ build_watchOS:
 			-destination 'generic/platform=watchOS'
 
 format:
-	swiftformat .
+	swift format --in-place --recursive .
 
 .PHONY: format
