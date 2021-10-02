@@ -2,11 +2,14 @@ import Foundation
 import cmark
 
 extension Document {
+  /// Renders this document as CommonMark-formatted text.
   public func renderCommonMark() -> String {
     let node = CommonMarkNode(document: self)
     return String(cString: cmark_render_commonmark(node.pointer, CMARK_OPT_DEFAULT, 0))
   }
 
+  /// Renders this document as HTML.
+  /// - Parameter options: Options that affect how the document is rendered as HTML.
   public func renderHTML(options: RenderingOptions = .init()) -> String {
     let node = CommonMarkNode(document: self)
     return String(cString: cmark_render_html(node.pointer, options.rawValue))
