@@ -8,123 +8,133 @@ SwiftCommonMark is a library for parsing and creating Markdown documents in Swif
 
 ## Usage
 
-You can create a `Document` by providing a CommonMark string.
+A CommonMark `Document` consists of a sequence of blocks—structural elements like paragraphs,
+block quotations, lists, headings, rules, and code blocks. Some blocks, like blockquotes and
+list items, contain other blocks; others, like headings and paragraphs, contain inline text,
+links, emphasized text, images, code spans, etc.
+
+You can create a `Document` by passing a CommonMark-formatted `String` or `Data` instance to
+initializers like `init(markdown:options:)`.
 
 ```swift
-let document = Document(
-    #"""
-    It's very easy to make some words **bold** and other words *italic* with Markdown.
-
-    **Want to experiment with Markdown?** Play with the [reference CommonMark
-    implementation](https://spec.commonmark.org/dingus/).
-    """#
-)
-```
-
-And access its abstract syntax tree via the `blocks` property.
-
-```swift
-for block in document.blocks {
-    switch block {
-    case let .blockQuote(blocks):
-        // Inspect the nested blocks
-    case let .list(list):
-        print(list.style) // bullet or ordered
-        print(list.spacing) // loose or tight
-        for item in list.items {
-            // Inspect item.blocks
-        }
-    case let .code(text, language):
-        // A code block
-    case let .html(content):
-        // An HTML block
-    case let .paragraph(inlines):
-        // Inspect nested inlines
-        for inline in inlines {
-            switch inline {
-            case let .text(text):
-                // Plain text
-            case .softBreak:
-                // A soft break is usually replaced by a space
-            case .lineBreak:
-                // A line break
-            case let .code(text):
-                // Inline code
-            case let .html(text):
-                // Inline HTML
-            case let .emphasis(inlines):
-                // Emphasized inlines
-            case let .strong(inlines):
-                // Strong inlines
-            case let .link(inlines, url, title):
-                // A link
-            case let .image(inlines, url, title):
-                // An image
-            }
-        }
-    case let .heading(inlines, level):
-        // A heading with the specified level
-    case .thematicBreak:
-        // A thematic break
-    }
+do {
+  let document = try Document(
+    markdown: "You can try **CommonMark** [here](https://spec.commonmark.org/dingus/)."
+  )
+} catch {
+  print("Couldn't parse document.")
 }
 ```
 
-The [MarkdownUI](https://github.com/gonzalezreal/MarkdownUI) library uses this technique to render a CommonMark `Document` into an `NSAttributedString`.
-
-From Swift 5.4 onwards, you can create a `Document` in a type-safe manner using an embedded DSL.
+From Swift 5.4 onwards, you can create a `Document` by passing an array of `Block`s 
+constructed with a `BlockArrayBuilder`.
 
 ```swift
 let document = Document {
-    Heading(level: 2) {
-        "Markdown lists"
-    }
+  Heading(level: 2) {
+    "Markdown lists"
+  }
+  Paragraph {
     "Sometimes you want numbered lists:"
-    List(start: 1) {
-        "One"
-        "Two"
-        "Three"
-    }
+  }
+  List(start: 1) {
+    "One"
+    "Two"
+    "Three"
+  }
+  Paragraph {
     "Sometimes you want bullet points:"
-    List {
-        "Start a line with a star"
-        "Profit!"
-        Item {
-            "And you can have sub points:"
-            List {
-                "Like this"
-                "And this"
-            }
-        }
+  }
+  List {
+    Item {
+      Paragraph {
+        "Start a line with a "
+        Strong("star")
+      }
     }
+    Item {
+      "Profit!"
+    }
+    Item {
+      "And you can have sub points:"
+      List {
+        "Like this"
+        "And this"
+      }
+    }
+  }
 }
 ```
 
-You can always get the CommonMark syntax of a document by accessing its `description`. For instance, calling `description` in the previous document:
+You can inspect the elements of a `Document` by accessing its `blocks` property.
 
 ```swift
-print(document.description)
+document.blocks.forEach { block in
+  switch block {
+  case .blockQuote(let items):
+    items.forEach { block in
+      // Inspect blockQuote's blocks
+    }
+  case .list(let items, let type, let tight):
+    print(type)  // `.bullet` or `.ordered(Int)`
+    print("is tight: \(tight)")  // `false` for loose lists
+    items.forEach { blocks in
+      // Inspect each item's block sequence
+    }
+  case .code(let text, let info):
+    print(text)  // The code block text
+    print(info ?? "")  // Typically used to specify the language of the code block
+  case .html(let text):
+    print(text)  // Raw HTML
+  case .paragraph(let text):
+    text.forEach { inline in
+      // Inspect the paragraph's inlines
+      switch inline {
+      case .text(let text):
+        print(text)  // Plain text
+      case .softBreak:
+        print("Soft line break")
+      case .lineBreak:
+        print("Hard line break")
+      case .code(let text):
+        print(text)  // Code span
+      case .html(let text):
+        print(text)  // Inline HTML
+      case .emphasis(let children):
+        children.forEach { inline in
+          // Inspect emphasized inlines
+        }
+      case .strong(let children):
+        children.forEach { inline in
+          // Inspect strong emphasized inlines
+        }
+      case .link(let children, let url, let title):
+        print(url?.absoluteString ?? "")  // The link URL
+        print(title ?? "")  // Optional link title
+        children.forEach { inline in
+          // Inspect the link contents
+        }
+      case .image(let children, let url, let title):
+        print(url?.absoluteString ?? "")  // The image URL
+        print(title ?? "")  // Optional image title
+      }
+    }
+  case .heading(let text, let level):
+    print(level)  // The heading level
+    text.forEach { inline in
+      // Inspect the header's inlines
+    }
+  case .thematicBreak:
+    print("A thematic break")
+  }
+}
 ```
 
-Produces the following output:
+You can get back the CommonMark formatted text for a `Document` or render it as HTML.
 
-```
-## Markdown lists
-
-Sometimes you want numbered lists:
-
-1.  One
-2.  Two
-3.  Three
-
-Sometimes you want bullet points:
-
-  - Start a line with a star
-  - Profit\!
-  - And you can have sub points:
-      - Like this
-      - And this
-
+```swift
+let markdown = document.renderCommonMark()
+let html = document.renderHTML()
 ```
 
 ## Installation

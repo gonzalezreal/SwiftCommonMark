@@ -2,6 +2,7 @@ import Foundation
 import cmark
 
 extension Document {
+  /// Options that affect the parsing of a CommonMark-formatted string into a ``Document``.
   public struct ParsingOptions: OptionSet {
     public var rawValue: Int32
 

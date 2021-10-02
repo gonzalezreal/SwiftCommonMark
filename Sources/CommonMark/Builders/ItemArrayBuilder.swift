@@ -1,16 +1,20 @@
 #if swift(>=5.4)
   import Foundation
 
+  /// A list item.
   public struct Item {
+    /// The blocks contained in this list item.
     public let blocks: [Block]
 
+    /// Creates a list item.
+    /// - Parameter blocks: A ``BlockArrayBuilder`` that creates the blocks of this list item.
     public init(@BlockArrayBuilder blocks: () -> [Block]) {
       self.blocks = blocks()
     }
   }
 
-  @resultBuilder
-  public enum ItemArrayBuilder {
+  /// Constructs list items from multi-expression closures.
+  @resultBuilder public enum ItemArrayBuilder {
     public static func buildBlock(_ components: [[Block]]...) -> [[Block]] {
       components.flatMap { $0 }
     }

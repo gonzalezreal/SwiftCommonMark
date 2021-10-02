@@ -2,6 +2,7 @@ import Foundation
 import cmark
 
 extension Document {
+  /// Options that affect the rendering a ``Document`` as HTML.
   public struct RenderingOptions: OptionSet {
     public var rawValue: Int32
 
