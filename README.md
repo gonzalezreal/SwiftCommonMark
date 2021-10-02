@@ -16,8 +16,6 @@ links, emphasized text, images, code spans, etc.
 You can create a `Document` by passing a CommonMark-formatted `String` or `Data` instance to
 initializers like `init(markdown:options:)`.
 
-You can create a `Document` by providing a CommonMark string.
-
 ```swift
 do {
   let document = try Document(
