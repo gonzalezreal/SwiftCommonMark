@@ -125,7 +125,7 @@ import Foundation
 /// ```swift
 /// let markdown = document.renderCommonMark()
 /// let html = document.renderHTML()
-/// ``
+/// ```
 public struct Document: Hashable {
   /// The blocks that form this document.
   public var blocks: [Block]
