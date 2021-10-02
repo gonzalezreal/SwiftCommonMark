@@ -2,11 +2,14 @@ import Foundation
 import cmark
 
 extension Inline {
+  /// Renders this inline as CommonMark-formatted text.
   public func renderCommonMark() -> String {
     let node = CommonMarkNode(inline: self, managed: true)
     return String(cString: cmark_render_commonmark(node.pointer, CMARK_OPT_DEFAULT, 0))
   }
 
+  /// Renders this inline as HTML.
+  /// - Parameter options: Options that affect how the inline is rendered as HTML.
   public func renderHTML(options: Document.RenderingOptions = .init()) -> String {
     let node = CommonMarkNode(inline: self, managed: true)
     return String(cString: cmark_render_html(node.pointer, options.rawValue))
