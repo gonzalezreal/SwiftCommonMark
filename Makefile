@@ -1,14 +1,19 @@
-default: test build_watchOS
+test-all: test-linux test-swift
 
-test:
-	swift test
+test-linux:
+	docker run \
+		--rm \
+		-v "$(PWD):$(PWD)" \
+		-w "$(PWD)" \
+		swift:5.3 \
+		bash -c 'make test-swift'
 
-build_watchOS:
-	xcodebuild \
-			-scheme SwiftCommonMark-watchOS \
-			-destination 'generic/platform=watchOS'
+test-swift:
+	swift test \
+		--enable-test-discovery \
+		--parallel
 
 format:
 	swift format --in-place --recursive .
 
-.PHONY: format
+.PHONY: format test-all test-linux test-swift
