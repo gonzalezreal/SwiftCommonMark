@@ -38,16 +38,16 @@ import Foundation
 ///     "Sometimes you want bullet points:"
 ///   }
 ///   List {
-///     Item {
+///     ListItem {
 ///       Paragraph {
 ///         "Start a line with a "
 ///         Strong("star")
 ///       }
 ///     }
-///     Item {
+///     ListItem {
 ///       "Profit!"
 ///     }
-///     Item {
+///     ListItem {
 ///       "And you can have sub points:"
 ///       List {
 ///         "Like this"

@@ -39,12 +39,20 @@ final class DocumentTests: XCTestCase {
     // then
     XCTAssertEqual(
       [
-        .blockQuote(items: [
-          .paragraph(text: [.text("Hello")]),
-          .blockQuote(items: [
-            .paragraph(text: [.text("World")])
-          ]),
-        ])
+        .blockQuote(
+          .init(
+            items: [
+              .paragraph(.init(text: [.text("Hello")])),
+              .blockQuote(
+                .init(
+                  items: [
+                    .paragraph(.init(text: [.text("World")]))
+                  ]
+                )
+              ),
+            ]
+          )
+        )
       ],
       result
     )
@@ -65,20 +73,28 @@ final class DocumentTests: XCTestCase {
     // then
     XCTAssertEqual(
       [
-        .list(
-          items: [
-            [.paragraph(text: [.text("one")])],
-            [
-              .paragraph(text: [.text("two")]),
-              .list(
-                items: [
-                  [.paragraph(text: [.text("nested 1")])],
-                  [.paragraph(text: [.text("nested 2")])],
+        .orderedList(
+          .init(
+            items: [
+              .init(blocks: [.paragraph(.init(text: [.text("one")]))]),
+              .init(
+                blocks: [
+                  .paragraph(.init(text: [.text("two")])),
+                  .bulletList(
+                    .init(
+                      items: [
+                        .init(blocks: [.paragraph(.init(text: [.text("nested 1")]))]),
+                        .init(blocks: [.paragraph(.init(text: [.text("nested 2")]))]),
+                      ],
+                      tight: true
+                    )
+                  ),
                 ]
               ),
             ],
-          ],
-          type: .ordered(start: 1)
+            start: 1,
+            tight: true
+          )
         )
       ],
       result
@@ -101,21 +117,28 @@ final class DocumentTests: XCTestCase {
     // then
     XCTAssertEqual(
       [
-        .list(
-          items: [
-            [.paragraph(text: [.text("one")])],
-            [
-              .paragraph(text: [.text("two")]),
-              .list(
-                items: [
-                  [.paragraph(text: [.text("nested 1")])],
-                  [.paragraph(text: [.text("nested 2")])],
+        .orderedList(
+          .init(
+            items: [
+              .init(blocks: [.paragraph(.init(text: [.text("one")]))]),
+              .init(
+                blocks: [
+                  .paragraph(.init(text: [.text("two")])),
+                  .bulletList(
+                    .init(
+                      items: [
+                        .init(blocks: [.paragraph(.init(text: [.text("nested 1")]))]),
+                        .init(blocks: [.paragraph(.init(text: [.text("nested 2")]))]),
+                      ],
+                      tight: true
+                    )
+                  ),
                 ]
               ),
             ],
-          ],
-          type: .ordered(start: 9),
-          tight: false
+            start: 9,
+            tight: false
+          )
         )
       ],
       result
@@ -137,10 +160,7 @@ final class DocumentTests: XCTestCase {
     // then
     XCTAssertEqual(
       [
-        .code(
-          text: "let a = 5\nlet b = 42\n",
-          info: "swift"
-        )
+        .code(.init(language: "swift", code: { "let a = 5\nlet b = 42\n" }))
       ],
       result
     )
@@ -156,7 +176,7 @@ final class DocumentTests: XCTestCase {
     // then
     XCTAssertEqual(
       [
-        .html(text: "<p>Hello world!</p>\n")
+        .html(.init(html: "<p>Hello world!</p>\n"))
       ],
       result
     )
@@ -172,7 +192,7 @@ final class DocumentTests: XCTestCase {
     // then
     XCTAssertEqual(
       [
-        .paragraph(text: [.text("Hello world!")])
+        .paragraph(.init(text: [.text("Hello world!")]))
       ],
       result
     )
@@ -191,8 +211,8 @@ final class DocumentTests: XCTestCase {
     // then
     XCTAssertEqual(
       [
-        .heading(text: [.text("Hello")], level: 1),
-        .heading(text: [.text("World")], level: 2),
+        .heading(.init(text: [.text("Hello")], level: 1)),
+        .heading(.init(text: [.text("World")], level: 2)),
       ],
       result
     )
@@ -211,11 +231,15 @@ final class DocumentTests: XCTestCase {
     // then
     XCTAssertEqual(
       [
-        .paragraph(text: [
-          .text("Hello"),
-          .softBreak,
-          .text("World"),
-        ])
+        .paragraph(
+          .init(
+            text: [
+              .text("Hello"),
+              .softBreak,
+              .text("World"),
+            ]
+          )
+        )
       ],
       result
     )
@@ -231,11 +255,15 @@ final class DocumentTests: XCTestCase {
     // then
     XCTAssertEqual(
       [
-        .paragraph(text: [
-          .text("Hello"),
-          .lineBreak,
-          .text("World"),
-        ])
+        .paragraph(
+          .init(
+            text: [
+              .text("Hello"),
+              .lineBreak,
+              .text("World"),
+            ]
+          )
+        )
       ],
       result
     )
@@ -251,11 +279,15 @@ final class DocumentTests: XCTestCase {
     // then
     XCTAssertEqual(
       [
-        .paragraph(text: [
-          .text("Returns "),
-          .code("nil"),
-          .text("."),
-        ])
+        .paragraph(
+          .init(
+            text: [
+              .text("Returns "),
+              .code(.init("nil")),
+              .text("."),
+            ]
+          )
+        )
       ],
       result
     )
@@ -271,13 +303,17 @@ final class DocumentTests: XCTestCase {
     // then
     XCTAssertEqual(
       [
-        .paragraph(text: [
-          .text("Returns "),
-          .html("<code>"),
-          .text("nil"),
-          .html("</code>"),
-          .text("."),
-        ])
+        .paragraph(
+          .init(
+            text: [
+              .text("Returns "),
+              .html(.init("<code>")),
+              .text("nil"),
+              .html(.init("</code>")),
+              .text("."),
+            ]
+          )
+        )
       ],
       result
     )
@@ -293,11 +329,15 @@ final class DocumentTests: XCTestCase {
     // then
     XCTAssertEqual(
       [
-        .paragraph(text: [
-          .text("Hello "),
-          .emphasis(children: [.text("world")]),
-          .text("."),
-        ])
+        .paragraph(
+          .init(
+            text: [
+              .text("Hello "),
+              .emphasis(.init(children: [.text("world")])),
+              .text("."),
+            ]
+          )
+        )
       ],
       result
     )
@@ -313,11 +353,15 @@ final class DocumentTests: XCTestCase {
     // then
     XCTAssertEqual(
       [
-        .paragraph(text: [
-          .text("Hello "),
-          .strong(children: [.text("world")]),
-          .text("."),
-        ])
+        .paragraph(
+          .init(
+            text: [
+              .text("Hello "),
+              .strong(.init(children: [.text("world")])),
+              .text("."),
+            ]
+          )
+        )
       ],
       result
     )
@@ -333,11 +377,20 @@ final class DocumentTests: XCTestCase {
     // then
     XCTAssertEqual(
       [
-        .paragraph(text: [
-          .text("Hello "),
-          .link(children: [.text("world")], url: URL(string: "https://example.com")),
-          .text("."),
-        ])
+        .paragraph(
+          .init(
+            text: [
+              .text("Hello "),
+              .link(
+                .init(
+                  children: [.text("world")],
+                  url: URL(string: "https://example.com")
+                )
+              ),
+              .text("."),
+            ]
+          )
+        )
       ],
       result
     )
@@ -353,11 +406,15 @@ final class DocumentTests: XCTestCase {
     // then
     XCTAssertEqual(
       [
-        .paragraph(text: [
-          .text("Hello "),
-          .image(children: [.text("world")], url: URL(string: "https://example.com/world.jpg")),
-          .text("."),
-        ])
+        .paragraph(
+          .init(
+            text: [
+              .text("Hello "),
+              .image(.init("https://example.com/world.jpg", alt: "world")),
+              .text("."),
+            ]
+          )
+        )
       ],
       result
     )
@@ -373,7 +430,15 @@ final class DocumentTests: XCTestCase {
     let model = Model(
       markdownText: Document(
         blocks: [
-          .heading(text: [.text("Hello "), .emphasis(children: [.text("world")])], level: 1)
+          .heading(
+            .init(
+              text: [
+                .text("Hello "),
+                .emphasis(.init(children: [.text("world")])),
+              ],
+              level: 1
+            )
+          )
         ]
       )
     )
@@ -408,9 +473,9 @@ final class DocumentTests: XCTestCase {
         Paragraph {
           "Sometimes it's useful to have different levels of headings to structure your documents. "
           "Start lines with a "
-          Code("#")
+          InlineCode("#")
           " to create headings. Multiple "
-          Code("##")
+          InlineCode("##")
           " in a row denote smaller heading sizes."
         }
         Heading(level: 3) {
@@ -435,7 +500,7 @@ final class DocumentTests: XCTestCase {
         Paragraph {
           "Sometimes you want numbered lists:"
         }
-        List(start: 1) {
+        OrderedList(start: 1) {
           "One"
           "Two"
           "Three"
@@ -443,7 +508,7 @@ final class DocumentTests: XCTestCase {
         Paragraph {
           "Sometimes you want bullet points:"
         }
-        List {
+        BulletList {
           "Start a line with a star"
           "Profit!"
         }
@@ -452,6 +517,15 @@ final class DocumentTests: XCTestCase {
         }
         Paragraph {
           Image("https://octodex.github.com/images/yaktocat.png", alt: "Image of Yaktocat")
+        }
+        Paragraph {
+          InlineHTML("<cite>")
+          "The Scream"
+          InlineHTML("</cite>")
+          " by Edward Munch. Painted in 1893."
+        }
+        HTMLBlock {
+          "<p>This is some text in a paragraph.</p>"
         }
       }
 
@@ -485,6 +559,10 @@ final class DocumentTests: XCTestCase {
 
         ![Image of Yaktocat](https://octodex.github.com/images/yaktocat.png)
 
+        <cite>The Scream</cite> by Edward Munch. Painted in 1893.
+
+        <p>This is some text in a paragraph.</p>
+
         """#,
         result.renderCommonMark()
       )
@@ -511,9 +589,11 @@ final class DocumentTests: XCTestCase {
         </ul>
         <p>If you want to embed images, this is how you do it:</p>
         <p><img src="https://octodex.github.com/images/yaktocat.png" alt="Image of Yaktocat" /></p>
+        <p><cite>The Scream</cite> by Edward Munch. Painted in 1893.</p>
+        <p>This is some text in a paragraph.</p>
 
         """#,
-        result.renderHTML()
+        result.renderHTML(options: .unsafe)
       )
     }
   }

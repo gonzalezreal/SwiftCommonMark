@@ -18,35 +18,38 @@
             "I say goodbye."
           }
         }
-        List(start: 1) {
-          Item { "One" }
-          Item {
+        OrderedList(start: 1) {
+          ListItem { "One" }
+          ListItem {
             "Two"
-            List(tight: false) {
+            BulletList(tight: false) {
               "Two 1"
               "Two 2"
             }
           }
         }
         // The tight parameter should be ignored because there are items with multiple paragraphs
-        List(tight: true) {
-          Item {
+        BulletList(tight: true) {
+          ListItem {
             "First paragraph."
             "Second paragraph."
           }
-          Item {
+          ListItem {
             "Two"
-            List {
+            BulletList {
               "Two 1"
               "Two 2"
             }
           }
         }
-        Code(language: "swift") {
+        CodeBlock(language: "swift") {
           """
           let a = 5
           let b = 42
           """
+        }
+        HTMLBlock {
+          "<p>Hello world!</p>"
         }
         Heading(level: 2) {
           "Chapter 1"
@@ -60,63 +63,83 @@
       // then
       XCTAssertEqual(
         [
-          .paragraph(text: [.text("This is the first paragraph.")]),
+          .paragraph(.init(text: [.text("This is the first paragraph.")])),
           .paragraph(
-            text: [
-              .text("This is the "),
-              .strong(children: [.text("second")]),
-              .text(" paragraph."),
-            ]
+            .init(
+              text: [
+                .text("This is the "),
+                .strong(.init(children: [.text("second")])),
+                .text(" paragraph."),
+              ]
+            )
           ),
           .blockQuote(
-            items: [
-              .paragraph(text: [.text("You say hello.")]),
-              .blockQuote(
-                items: [
-                  .paragraph(text: [.text("I say goodbye.")])
-                ]
-              ),
-            ]
-          ),
-          .list(
-            items: [
-              [.paragraph(text: [.text("One")])],
-              [
-                .paragraph(text: [.text("Two")]),
-                .list(
-                  items: [
-                    [.paragraph(text: [.text("Two 1")])],
-                    [.paragraph(text: [.text("Two 2")])],
-                  ],
-                  tight: false
+            .init(
+              items: [
+                .paragraph(.init(text: [.text("You say hello.")])),
+                .blockQuote(
+                  .init(
+                    items: [
+                      .paragraph(.init(text: [.text("I say goodbye.")]))
+                    ]
+                  )
                 ),
-              ],
-            ],
-            type: .ordered(start: 1)
+              ]
+            )
           ),
-          .list(
-            items: [
-              [
-                .paragraph(text: [.text("First paragraph.")]),
-                .paragraph(text: [.text("Second paragraph.")]),
-              ],
-              [
-                .paragraph(text: [.text("Two")]),
-                .list(
-                  items: [
-                    [.paragraph(text: [.text("Two 1")])],
-                    [.paragraph(text: [.text("Two 2")])],
+          .orderedList(
+            .init(
+              items: [
+                .init(blocks: [.paragraph(.init(text: [.text("One")]))]),
+                .init(
+                  blocks: [
+                    .paragraph(.init(text: [.text("Two")])),
+                    .bulletList(
+                      .init(
+                        items: [
+                          .init(blocks: [.paragraph(.init(text: [.text("Two 1")]))]),
+                          .init(blocks: [.paragraph(.init(text: [.text("Two 2")]))]),
+                        ],
+                        tight: false
+                      )
+                    ),
                   ]
                 ),
               ],
-            ],
-            tight: false
+              start: 1,
+              tight: true
+            )
           ),
-          .code(
-            text: "let a = 5\nlet b = 42\n",
-            info: "swift"
+          .bulletList(
+            .init(
+              items: [
+                .init(
+                  blocks: [
+                    .paragraph(.init(text: [.text("First paragraph.")])),
+                    .paragraph(.init(text: [.text("Second paragraph.")])),
+                  ]
+                ),
+                .init(
+                  blocks: [
+                    .paragraph(.init(text: [.text("Two")])),
+                    .bulletList(
+                      .init(
+                        items: [
+                          .init(blocks: [.paragraph(.init(text: [.text("Two 1")]))]),
+                          .init(blocks: [.paragraph(.init(text: [.text("Two 2")]))]),
+                        ],
+                        tight: true
+                      )
+                    ),
+                  ]
+                ),
+              ],
+              tight: false
+            )
           ),
-          .heading(text: [.text("Chapter 1")], level: 2),
+          .code(.init(language: "swift", code: { "let a = 5\nlet b = 42" })),
+          .html(.init(html: "<p>Hello world!</p>")),
+          .heading(.init(text: [.text("Chapter 1")], level: 2)),
           .thematicBreak,
         ],
         result
@@ -137,10 +160,10 @@
       // then
       XCTAssertEqual(
         [
-          .paragraph(text: [.text("0")]),
-          .paragraph(text: [.text("1")]),
-          .paragraph(text: [.text("2")]),
-          .paragraph(text: [.text("3")]),
+          .paragraph(.init(text: [.text("0")])),
+          .paragraph(.init(text: [.text("1")])),
+          .paragraph(.init(text: [.text("2")])),
+          .paragraph(.init(text: [.text("3")])),
         ],
         result
       )
@@ -162,9 +185,11 @@
       // then
       XCTAssertEqual(
         [
-          .paragraph(text: [.text("Something is:")]),
+          .paragraph(.init(text: [.text("Something is:")])),
           .blockQuote(
-            items: [.paragraph(text: [.text("true")])]
+            .init(
+              items: [.paragraph(.init(text: [.text("true")]))]
+            )
           ),
         ],
         result
@@ -190,17 +215,19 @@
       // then
       XCTAssertEqual(
         [
-          .paragraph(text: [.text("Something is:")]),
+          .paragraph(.init(text: [.text("Something is:")])),
           .blockQuote(
-            items: [.paragraph(text: [.text("true")])]
+            .init(
+              items: [.paragraph(.init(text: [.text("true")]))]
+            )
           ),
         ],
         result1
       )
       XCTAssertEqual(
         [
-          .paragraph(text: [.text("Something is:")]),
-          .paragraph(text: [.text("false")]),
+          .paragraph(.init(text: [.text("Something is:")])),
+          .paragraph(.init(text: [.text("false")])),
         ],
         result2
       )
