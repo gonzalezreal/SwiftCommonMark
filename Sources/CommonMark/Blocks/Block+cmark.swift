@@ -20,22 +20,37 @@ extension Block {
   init?(commonMarkNode: CommonMarkNode) {
     switch commonMarkNode.type {
     case CMARK_NODE_BLOCK_QUOTE:
-      self = .blockQuote(items: commonMarkNode.children.compactMap(Block.init))
+      self = .blockQuote(.init(items: commonMarkNode.children.compactMap(Block.init)))
+    case CMARK_NODE_LIST where commonMarkNode.listType == CMARK_ORDERED_LIST:
+      self = .orderedList(
+        .init(
+          items: commonMarkNode.children.compactMap(ListItem.init(commonMarkNode:)),
+          start: commonMarkNode.listStart,
+          tight: commonMarkNode.listTight
+        )
+      )
     case CMARK_NODE_LIST:
-      self = .list(
-        items: commonMarkNode.children.compactMap(Array.init(commonMarkNode:)),
-        type: ListType(commonMarkNode.listType, commonMarkNode.listStart),
-        tight: commonMarkNode.listTight
+      self = .bulletList(
+        .init(
+          items: commonMarkNode.children.compactMap(ListItem.init(commonMarkNode:)),
+          tight: commonMarkNode.listTight
+        )
       )
     case CMARK_NODE_CODE_BLOCK:
-      self = .code(text: commonMarkNode.literal ?? "", info: commonMarkNode.fenceInfo)
+      self = .code(
+        .init(language: commonMarkNode.fenceInfo, code: { commonMarkNode.literal ?? "" })
+      )
     case CMARK_NODE_HTML_BLOCK:
-      self = .html(text: commonMarkNode.literal ?? "")
+      self = .html(.init(html: commonMarkNode.literal ?? ""))
     case CMARK_NODE_PARAGRAPH:
-      self = .paragraph(text: commonMarkNode.children.compactMap(Inline.init))
+      self = .paragraph(.init(text: commonMarkNode.children.compactMap(Inline.init)))
     case CMARK_NODE_HEADING:
       self = .heading(
-        text: commonMarkNode.children.compactMap(Inline.init), level: commonMarkNode.headingLevel)
+        .init(
+          text: commonMarkNode.children.compactMap(Inline.init),
+          level: commonMarkNode.headingLevel
+        )
+      )
     case CMARK_NODE_THEMATIC_BREAK:
       self = .thematicBreak
     default:
@@ -45,24 +60,13 @@ extension Block {
   }
 }
 
-extension ListType {
-  fileprivate init(_ cmark_list_type: cmark_list_type, _ start: Int) {
-    switch cmark_list_type {
-    case CMARK_ORDERED_LIST:
-      self = .ordered(start: start)
-    default:
-      self = .bullet
-    }
-  }
-}
-
-extension Array where Element == Block {
+extension ListItem {
   fileprivate init?(commonMarkNode: CommonMarkNode) {
     guard case CMARK_NODE_ITEM = commonMarkNode.type else {
       assertionFailure("Expecting 'CMARK_NODE_ITEM' but instead got '\(commonMarkNode.typeString)'")
       return nil
     }
-    self.init(commonMarkNode.children.compactMap(Block.init))
+    self.init(blocks: commonMarkNode.children.compactMap(Block.init))
   }
 }
 
@@ -71,48 +75,48 @@ extension CommonMarkNode {
     let pointer: OpaquePointer
 
     switch block {
-    case let .blockQuote(items):
+    case let .blockQuote(blockQuote):
       pointer = cmark_node_new(CMARK_NODE_BLOCK_QUOTE)
-      items.map {
+      blockQuote.items.map {
         CommonMarkNode(block: $0, managed: false)
       }.forEach { node in
         cmark_node_append_child(pointer, node.pointer)
       }
-    case let .list(items, type, tight):
+    case let .bulletList(list):
       pointer = cmark_node_new(CMARK_NODE_LIST)
-      switch type {
-      case .bullet:
-        cmark_node_set_list_type(pointer, CMARK_BULLET_LIST)
-      case let .ordered(start):
-        cmark_node_set_list_type(pointer, CMARK_ORDERED_LIST)
-        cmark_node_set_list_start(pointer, Int32(start))
-      }
-      cmark_node_set_list_tight(pointer, tight ? 1 : 0)
-      items.map {
-        CommonMarkNode(item: $0)
-      }.forEach { childNode in
+      cmark_node_set_list_type(pointer, CMARK_BULLET_LIST)
+      cmark_node_set_list_tight(pointer, list.tight ? 1 : 0)
+      list.items.map(CommonMarkNode.init(listItem:)).forEach { childNode in
         cmark_node_append_child(pointer, childNode.pointer)
       }
-    case let .code(text, info):
-      pointer = cmark_node_new(CMARK_NODE_CODE_BLOCK)
-      cmark_node_set_literal(pointer, text)
-      if let info = info, !info.isEmpty {
-        cmark_node_set_fence_info(pointer, info)
+    case let .orderedList(list):
+      pointer = cmark_node_new(CMARK_NODE_LIST)
+      cmark_node_set_list_type(pointer, CMARK_ORDERED_LIST)
+      cmark_node_set_list_start(pointer, Int32(list.start))
+      cmark_node_set_list_tight(pointer, list.tight ? 1 : 0)
+      list.items.map(CommonMarkNode.init(listItem:)).forEach { childNode in
+        cmark_node_append_child(pointer, childNode.pointer)
       }
-    case let .html(text):
+    case let .code(codeBlock):
+      pointer = cmark_node_new(CMARK_NODE_CODE_BLOCK)
+      cmark_node_set_literal(pointer, codeBlock.code)
+      if let language = codeBlock.language, !language.isEmpty {
+        cmark_node_set_fence_info(pointer, language)
+      }
+    case let .html(htmlBlock):
       pointer = cmark_node_new(CMARK_NODE_HTML_BLOCK)
-      cmark_node_set_literal(pointer, text)
-    case let .paragraph(text):
+      cmark_node_set_literal(pointer, htmlBlock.html)
+    case let .paragraph(paragraph):
       pointer = cmark_node_new(CMARK_NODE_PARAGRAPH)
-      text.map {
+      paragraph.text.map {
         CommonMarkNode(inline: $0, managed: false)
       }.forEach { node in
         cmark_node_append_child(pointer, node.pointer)
       }
-    case let .heading(text, level):
+    case let .heading(heading):
       pointer = cmark_node_new(CMARK_NODE_HEADING)
-      cmark_node_set_heading_level(pointer, Int32(level))
-      text.map {
+      cmark_node_set_heading_level(pointer, Int32(heading.level))
+      heading.text.map {
         CommonMarkNode(inline: $0, managed: false)
       }.forEach { node in
         cmark_node_append_child(pointer, node.pointer)
@@ -126,9 +130,9 @@ extension CommonMarkNode {
 }
 
 extension CommonMarkNode {
-  fileprivate convenience init(item: [Block]) {
+  fileprivate convenience init(listItem: ListItem) {
     let pointer: OpaquePointer = cmark_node_new(CMARK_NODE_ITEM)
-    item.map {
+    listItem.blocks.map {
       CommonMarkNode(block: $0, managed: false)
     }.forEach { node in
       cmark_node_append_child(pointer, node.pointer)

@@ -12,20 +12,20 @@ public enum Inline: Hashable {
   case lineBreak
 
   /// Code span.
-  case code(String)
+  case code(InlineCode)
 
   /// Raw HTML.
-  case html(String)
+  case html(InlineHTML)
 
   /// Emphasis.
-  case emphasis(children: [Inline])
+  case emphasis(Emphasis)
 
   /// Strong emphasis.
-  case strong(children: [Inline])
+  case strong(Strong)
 
   /// Link.
-  case link(children: [Inline], url: URL?, title: String? = nil)
+  case link(Link)
 
   /// Image.
-  case image(children: [Inline], url: URL?, title: String? = nil)
+  case image(Image)
 }

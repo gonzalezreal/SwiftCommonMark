@@ -10,7 +10,7 @@
         SoftBreak()
         "world!"
         LineBreak()
-        Code("let a = b")
+        InlineCode("let a = b")
         Strong {
           "Everyone "
           Emphasis("must")
@@ -25,6 +25,7 @@
         }
         " season."
         Image("https://commonmark.org/help/images/favicon.png", alt: "CommonMark")
+        InlineHTML("<br>")
       }
 
       // when
@@ -37,27 +38,38 @@
           .softBreak,
           .text("world!"),
           .lineBreak,
-          .code("let a = b"),
+          .code(.init("let a = b")),
           .strong(
-            children: [
+            .init(children: [
               .text("Everyone "),
               .emphasis(
-                children: [
+                .init(children: [
                   .text("must")
-                ]
+                ])
               ),
               .text(" attend the meeting at 5 o’clock today."),
-            ]
+            ])
           ),
-          .link(children: [.text("Hurricane")], url: URL(string: "https://w.wiki/qYn")!),
+          .link(
+            .init(
+              children: [.text("Hurricane")],
+              url: URL(string: "https://w.wiki/qYn")!
+            )
+          ),
           .text(
-            " Erika was the strongest and longest-lasting tropical cyclone in the 1997 Atlantic "),
-          .link(children: [.text("hurricane")], url: URL(string: "https://w.wiki/qYn")!),
+            " Erika was the strongest and longest-lasting tropical cyclone in the 1997 Atlantic "
+          ),
+          .link(
+            .init(
+              children: [.text("hurricane")],
+              url: URL(string: "https://w.wiki/qYn")!
+            )
+          ),
           .text(" season."),
           .image(
-            children: [.text("CommonMark")],
-            url: URL(string: "https://commonmark.org/help/images/favicon.png")!
+            .init("https://commonmark.org/help/images/favicon.png", alt: "CommonMark")
           ),
+          .html(.init("<br>")),
         ],
         result
       )
@@ -104,7 +116,7 @@
         [
           .text("Something is "),
           .emphasis(
-            children: [.text("true")]
+            .init(children: [.text("true")])
           ),
         ],
         result
@@ -132,7 +144,7 @@
         [
           .text("Something is "),
           .emphasis(
-            children: [.text("true")]
+            .init(children: [.text("true")])
           ),
         ],
         result1
