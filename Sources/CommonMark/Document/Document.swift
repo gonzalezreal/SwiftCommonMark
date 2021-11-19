@@ -29,7 +29,7 @@ import Foundation
 ///   Paragraph {
 ///     "Sometimes you want numbered lists:"
 ///   }
-///   List(start: 1) {
+///   OrderedList {
 ///     "One"
 ///     "Two"
 ///     "Three"
@@ -37,7 +37,7 @@ import Foundation
 ///   Paragraph {
 ///     "Sometimes you want bullet points:"
 ///   }
-///   List {
+///   BulletList {
 ///     ListItem {
 ///       Paragraph {
 ///         "Start a line with a "
@@ -49,7 +49,7 @@ import Foundation
 ///     }
 ///     ListItem {
 ///       "And you can have sub points:"
-///       List {
+///       BulletList {
 ///         "Like this"
 ///         "And this"
 ///       }
@@ -60,63 +60,36 @@ import Foundation
 ///
 /// You can inspect the elements of a ``Document`` by accessing its ``blocks`` property.
 /// ```swift
-/// document.blocks.forEach { block in
+/// for block in document.blocks {
 ///   switch block {
-///   case .blockQuote(let items):
-///     items.forEach { block in
-///       // Inspect blockQuote's blocks
+///   case .blockQuote(let blockQuote):
+///     for item in blockQuote.items {
+///       // Inspect the item
 ///     }
-///   case .list(let items, let type, let tight):
-///     print(type)  // `.bullet` or `.ordered(Int)`
-///     print("is tight: \(tight)")  // `false` for loose lists
-///     items.forEach { blocks in
-///       // Inspect each item's block sequence
+///   case .bulletList(let bulletList):
+///     for item in bulletList.items {
+///       // Inspect the list item
 ///     }
-///   case .code(let text, let info):
-///     print(text)  // The code block text
-///     print(info ?? "")  // Typically used to specify the language of the code block
-///   case .html(let text):
-///     print(text)  // Raw HTML
-///   case .paragraph(let text):
-///     text.forEach { inline in
-///       // Inspect the paragraph's inlines
-///       switch inline {
-///       case .text(let text):
-///         print(text)  // Plain text
-///       case .softBreak:
-///         print("Soft line break")
-///       case .lineBreak:
-///         print("Hard line break")
-///       case .code(let text):
-///         print(text)  // Code span
-///       case .html(let text):
-///         print(text)  // Inline HTML
-///       case .emphasis(let children):
-///         children.forEach { inline in
-///           // Inspect emphasized inlines
-///         }
-///       case .strong(let children):
-///         children.forEach { inline in
-///           // Inspect strong emphasized inlines
-///         }
-///       case .link(let children, let url, let title):
-///         print(url?.absoluteString ?? "")  // The link URL
-///         print(title ?? "")  // Optional link title
-///         children.forEach { inline in
-///           // Inspect the link contents
-///         }
-///       case .image(let children, let url, let title):
-///         print(url?.absoluteString ?? "")  // The image URL
-///         print(title ?? "")  // Optional image title
-///       }
+///   case .orderedList(let orderedList):
+///     for item in orderedList.items {
+///       // Inspect the list item
 ///     }
-///   case .heading(let text, let level):
-///     print(level)  // The heading level
-///     text.forEach { inline in
-///       // Inspect the header's inlines
+///   case .code(let codeBlock):
+///     print(codeBlock.language)
+///     print(codeBlock.code)
+///   case .html(let htmlBlock):
+///     print(htmlBlock.html)
+///   case .paragraph(let paragraph):
+///     for inline in paragraph.text {
+///       // Inspect the inline
+///     }
+///   case .heading(let heading):
+///     print(heading.level)
+///     for inline in heading.text {
+///       // Inspect the inline
 ///     }
 ///   case .thematicBreak:
-///     print("A thematic break")
+///     // A thematic break
 ///   }
 /// }
 /// ```
