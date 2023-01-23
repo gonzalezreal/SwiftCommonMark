@@ -1,3 +1,10 @@
+> **Warning**
+>
+> **This repo has been archived.**
+>
+> Consider using https://github.com/apple/swift-markdown if you need to parse and transform Markdown using Swift or
+> https://github.com/gonzalezreal/swift-markdown-ui if you need to render Markdown in SwiftUI.
+
 # SwiftCommonMark
 [![CI](https://github.com/gonzalezreal/SwiftCommonMark/workflows/CI/badge.svg)](https://github.com/gonzalezreal/SwiftCommonMark/actions?query=workflow%3ACI)
 [![](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2Fgonzalezreal%2FSwiftCommonMark%2Fbadge%3Ftype%3Dswift-versions)](https://swiftpackageindex.com/gonzalezreal/SwiftCommonMark)
